@@ -1,0 +1,12 @@
+############################################################
+#		Relaxation Calculation Input File
+############################################################
+#	 Turn ON(1) or OFF(0) different tests	
+############################################################
+
+1							### LISM relaxation (LISM_keys.in)
+0							### Planetary relaxation (planet_keys.in)
+0             ### ENA Production
+0             ### Average Scattering Angles
+0							### SH MC simulation
+0             ### SH atom/molecule escape transparency calculations

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+cd ../Data
+mkdir Data_Compress
+mv *.dat ./Data_Compress
+cp ../Inputs/planet_keys.in ./Data_Compress
+tar -cf Data_Compress.tar ./Data_Compress
+gzip Data_Compress.tar
+mv ./Data_Compress/* ./
+rm -R ./Data_Compress
+cd ../Execute
+

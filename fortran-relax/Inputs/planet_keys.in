@@ -1,0 +1,40 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%% Planetary Relax 3D MC  %%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+H 							!! Projectile (H, He3, He4, O)
+QM              !! Collision Method Type QM or HS
+1               !! Atmosphere model SA (0 = min) (1 = mean) (2 = max)
+0.1D0     			!! Thermal Energy [eV]
+0.4D0     			!! Escape Energy [eV]
+200.0D3					!! Starting height [m]
+700.0D3 				!! Escape height from planet [m]
+0.0D0						!! Solar Zenith Angle [deg]
+1000	  		  	!! Number of MC particles
+0								!! SHA on (1) or off (0)
+0								!! Planet gravity on (1) or off (0)
+1								!! Mono-energetic (1) or SW prob distribution (2)
+1.0D3 					!! If mono-energetic, starting energy [eV]
+300000						!! Max number of clicks for step-by-step simulation
+300   						!! Click step size for data savings
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%% DATA FILES TO WRITE %%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+1		!! WRITE CLICK ENA E  vs T
+1		!! WRITE CLICK ENA H  vs T
+1		!! WRITE CLICK ENA N  vs T
+1		!! WRITE CLICK ENA Ux vs T
+1		!! WRITE CLICK ENA H  vs Ux
+1 	!! WRITE CLICK ENA H  vs N
+1		!! WRITE CLICK ENA H  vs E
+1		!! WRITE CLICK ENA H  vs dE
+1		!! WRITE ALL   ENA E  vs T
+1		!! WRITE ALL   ENA H  vs T
+1		!! WRITE ALL   ENA N  vs T
+1		!! WRITE ALL   ENA Ux vs T
+1		!! WRITE ALL   ENA H  vs Ux
+1 	!! WRITE ALL   ENA H  vs N
+1		!! WRITE ALL   ENA H  vs E
+1		!! WRITE ALL   ENA H  vs dE
+1   !! WRITE ALL   SHA H  vs E  
+1   !! WRITE ALL   SHA H  vs Ux 
