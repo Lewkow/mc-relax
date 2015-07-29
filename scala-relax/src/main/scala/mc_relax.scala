@@ -1,6 +1,7 @@
 
 import parameters.Parameters
 import particle.Particle
+import transport.Transport
 
 object mc_relax extends Serializable {
 
@@ -27,7 +28,11 @@ object mc_relax extends Serializable {
     //////////////////////////////////////////////////////////////////////
     // do transport simulation until all particles have met exit condition
     //////////////////////////////////////////////////////////////////////
-
+    var keep_clicking = true
+    while (keep_clicking) {
+        // transport
+        keep_clicking = false
+    }
 
     //////////////////////////////////////////////////////////////////////
     // generate statistical distributions from simulation results
