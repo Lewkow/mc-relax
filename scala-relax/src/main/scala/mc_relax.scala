@@ -2,6 +2,7 @@
 import parameters.Parameters
 import hotParticle.HotParticle
 import transport.Transport
+import atmosphere.Atmosphere
 
 object mc_relax extends Serializable {
 
@@ -28,10 +29,13 @@ object mc_relax extends Serializable {
     //////////////////////////////////////////////////////////////////////
     // do transport simulation until all particles have met exit condition
     //////////////////////////////////////////////////////////////////////
-    var keep_clicking = true
-    while (keep_clicking) {
+    var clickCounter: Int = 0
+    var keepClicking: Boolean = true
+    while (keepClicking) {
         // transport
-        keep_clicking = false
+
+        clickCounter += 1
+        if (clickCounter > 10) {keepClicking = false}
     }
 
     //////////////////////////////////////////////////////////////////////

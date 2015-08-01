@@ -1,5 +1,5 @@
 package transport
 
-class Transport() {
+class Transport {
   
 }
