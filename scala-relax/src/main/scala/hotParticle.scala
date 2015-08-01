@@ -1,6 +1,6 @@
 package hotParticle
 
-class HotParticle() 
+class HotParticle {
 
   var projectileName: String = ""
   var projecileMass: Double = 0.0

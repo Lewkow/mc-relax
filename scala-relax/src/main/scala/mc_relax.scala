@@ -1,6 +1,6 @@
 
 import parameters.Parameters
-import particle.Particle
+import hotParticle.HotParticle
 import transport.Transport
 
 object mc_relax extends Serializable {
