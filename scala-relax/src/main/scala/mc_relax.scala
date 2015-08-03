@@ -4,12 +4,26 @@ import hotParticle.HotParticle
 import transport.Transport
 import atmosphere.Atmosphere
 
+import org.apache.spark.SparkContext
+import org.apache.spark.SparkConf
+
+
+
 object mc_relax extends Serializable {
 
   //////////////////////////////////////////////////////////////////////
   // main relaxation function
   //////////////////////////////////////////////////////////////////////
   def main(args: Array[String]) {
+
+    //////////////////////////////////////////////////////////////////////
+    // get Spark Context
+    //////////////////////////////////////////////////////////////////////
+    val conf = new SparkConf().setAppName("mc-relax").setMaster("local[*]")
+    val sc = new SparkContext(conf)
+
+    val test = sc.parallelize(Array(1, 2, 3, 4))
+    if (test.count() != 4) println("Simple Spark test failed!")
 
     //////////////////////////////////////////////////////////////////////
     // read in all paremters
@@ -19,6 +33,23 @@ object mc_relax extends Serializable {
     //////////////////////////////////////////////////////////////////////
     val parameters = new Parameters
     parameters.read_parameters("test_filename.dat")
+
+    //////////////////////////////////////////////////////////////////////
+    // set initial parameters
+    //////////////////////////////////////////////////////////////////////
+    // Rdd of initial hot particles
+    val N_Hots: Int = 100
+    val N_partitions: Int = 4
+    val initPos: Array[(Double, Double, Double)] = parameters.getInitialPositions(N_Hots)
+    val initVel: Array[(Double, Double, Double)] = parameters.getInitialVelocities(N_Hots)
+    var gen1Hots: Array[HotParticle] = new Array[HotParticle](N_Hots)
+    for (i <- 0 until gen1Hots.length) {
+        gen1Hots(i) = new HotParticle
+        gen1Hots(i).setParameters("He", 4.0d, initPos(i), initVel(i), 1)
+    }
+    val gen1Hots_rdd = sc.parallelize(gen1Hots, N_partitions)
+
+    println("-- " + gen1Hots_rdd.count().toString + " initial hot particles")
 
     //////////////////////////////////////////////////////////////////////
     // read all scattering parameters from database for simulation
@@ -43,6 +74,11 @@ object mc_relax extends Serializable {
     // print overall statistics to screen
     // persist all distributions to files
     //////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////
+    // stop spark
+    //////////////////////////////////////////////////////////////////////
+    sc.stop()
 
 
   }

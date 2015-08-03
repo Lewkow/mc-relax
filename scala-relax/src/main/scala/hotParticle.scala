@@ -1,6 +1,6 @@
 package hotParticle
 
-class HotParticle {
+class HotParticle extends Serializable {
 
   var projectileName: String = ""
   var projecileMass: Double = 0.0
@@ -10,15 +10,18 @@ class HotParticle {
   var currentTime: Double = 0.0
   var numberOfCollisions: Int = 0
   var numberOfClicks: Int = 0
+  var generation: Int = 0
 
   def setParameters(name: String, 
                     mass: Double, 
                     initPosition: (Double, Double, Double),
-                    intitVelocity: (Double, Double, Double)) {
+                    intitVelocity: (Double, Double, Double),
+                    particleGeneration: Int) {
     projectileName = name
     projecileMass = mass
     currentPosition = initPosition
     currentVelocity = intitVelocity
+    generation = particleGeneration
   }
 
   def getEnergy: Double = {
