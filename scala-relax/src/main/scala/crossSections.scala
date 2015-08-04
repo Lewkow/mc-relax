@@ -45,8 +45,6 @@ class CrossSections {
     1.0d-15
   }
 
-
-
 }
 
 

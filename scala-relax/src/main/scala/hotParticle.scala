@@ -1,5 +1,6 @@
 package hotParticle
 
+import atmosphere.Atmosphere
 
 class HotParticle extends Serializable {
 
@@ -16,12 +17,15 @@ class HotParticle extends Serializable {
   var numberOfClicks: Int = 0
   var generation: Int = 0
   var randy: Random = new Random()
+  var atmosphere: Atmosphere = new Atmosphere
+
 
   def setParameters(name: String, 
                     mass: Double, 
                     initPosition: (Double, Double, Double),
                     intitVelocity: (Double, Double, Double),
-                    particleGeneration: Int) {
+                    particleGeneration: Int,
+                    inputAtmosphere: Atmosphere) {
     projectileName = name
     projecileMass = mass
     currentPosition = initPosition
@@ -34,9 +38,21 @@ class HotParticle extends Serializable {
               currentVelocity._2*currentVelocity._2 + 
               currentVelocity._3*currentVelocity._3)*0.5d*projecileMass
   }
+
+  def fullTransport {
+    while (!exitConditions) {
+      transport
+    }
+  }
+
+  def printCollisionProbability {
+    val p: Double = 100*numberOfCollisions.toDouble/numberOfClicks.toDouble
+    println(p.toString + " collisions per click")
+  }
  
   def transport {
     // get density of atmosphere at current postition [1/m^3]
+
 
     // calculate total density at current postition [1/m^3]
     
@@ -89,6 +105,7 @@ class HotParticle extends Serializable {
       // update energy after collision
 
       // update collision counters and nascent hot particles
+      numberOfCollisions += 1
 
       // convert scattering angle 
 
@@ -98,8 +115,20 @@ class HotParticle extends Serializable {
     // no collision occurs
     else {
 
-    }
+      // calculate transport time
 
+      // transport particle in straight line
+
+      // update position and velocity 
+
+    }
+    numberOfClicks += 1
+
+  }
+
+  def exitConditions: Boolean = {
+    if (numberOfCollisions > 100) true
+    else false
   }
 
 }

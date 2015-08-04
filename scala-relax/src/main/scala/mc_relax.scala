@@ -1,14 +1,13 @@
 
 import parameters.Parameters
 import hotParticle.HotParticle
-import transport.Transport
 import atmosphere.Atmosphere
 import crossSections.CrossSections
 
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkConf
 
-
+import scala.collection.mutable._
 
 object mc_relax extends Serializable {
 
@@ -34,6 +33,8 @@ object mc_relax extends Serializable {
     //////////////////////////////////////////////////////////////////////
     val parameters = new Parameters
     parameters.read_parameters("test_filename.dat")
+    val atmosphere: Atmosphere = new Atmosphere
+    atmosphere.setParameters(HashMap[String, Double]("CO2" -> 44.0d, "O" -> 16.0d, "He" -> 4.0d), 100.0d)
 
     //////////////////////////////////////////////////////////////////////
     // set initial parameters
@@ -46,7 +47,7 @@ object mc_relax extends Serializable {
     var gen1Hots: Array[HotParticle] = new Array[HotParticle](N_Hots)
     for (i <- 0 until gen1Hots.length) {
         gen1Hots(i) = new HotParticle
-        gen1Hots(i).setParameters("He", 4.0d, initPos(i), initVel(i), 1)
+        gen1Hots(i).setParameters("He", 4.0d, initPos(i), initVel(i), 1, atmosphere)
     }
     val gen1Hots_rdd = sc.parallelize(gen1Hots, N_partitions)
 
@@ -69,14 +70,15 @@ object mc_relax extends Serializable {
     //////////////////////////////////////////////////////////////////////
     // do transport simulation until all particles have met exit condition
     //////////////////////////////////////////////////////////////////////
-    var clickCounter: Int = 0
-    var keepClicking: Boolean = true
-    while (keepClicking) {
-        // transport
-
-        clickCounter += 1
-        if (clickCounter > 10) {keepClicking = false}
-    }
+    val gen1HotsTrans_rdd = gen1Hots_rdd.map(x => x.fullTransport)
+    val gen1HotsTrans = gen1HotsTrans_rdd.collect()
+    println(gen1HotsTrans.length)
+    println(gen1HotsTrans)
+    // for (i <- 0 until gen1HotsTrans.length) {
+        // println(i)
+        // println(gen1HotsTrans(i))
+        // gen1HotsTrans(i).printCollisionProbability
+    // }
 
     //////////////////////////////////////////////////////////////////////
     // generate statistical distributions from simulation results
