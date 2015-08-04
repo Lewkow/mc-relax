@@ -1,5 +1,0 @@
-package transport
-
-class Transport {
-  
-}

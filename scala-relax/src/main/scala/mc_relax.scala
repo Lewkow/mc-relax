@@ -3,6 +3,7 @@ import parameters.Parameters
 import hotParticle.HotParticle
 import transport.Transport
 import atmosphere.Atmosphere
+import crossSections.CrossSections
 
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkConf
@@ -55,7 +56,15 @@ object mc_relax extends Serializable {
     // read all scattering parameters from database for simulation
     // (tcs, scattering_ang_probs)
     //////////////////////////////////////////////////////////////////////
-  
+    // if the required cross sections exist in database
+    val crossSections = new CrossSections
+    if (crossSections.haveCrossSections) {
+        println("yay!! I have the cross sections I need!")
+    } 
+    // if cross sections need to be calculated before mc simulation
+    else {
+        println("I need to do some computation")
+    }
 
     //////////////////////////////////////////////////////////////////////
     // do transport simulation until all particles have met exit condition

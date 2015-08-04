@@ -1,6 +1,10 @@
 package hotParticle
 
+
 class HotParticle extends Serializable {
+
+  import scala.util.Random
+  import scala.math._
 
   var projectileName: String = ""
   var projecileMass: Double = 0.0
@@ -11,6 +15,7 @@ class HotParticle extends Serializable {
   var numberOfCollisions: Int = 0
   var numberOfClicks: Int = 0
   var generation: Int = 0
+  var randy: Random = new Random()
 
   def setParameters(name: String, 
                     mass: Double, 
@@ -29,5 +34,72 @@ class HotParticle extends Serializable {
               currentVelocity._2*currentVelocity._2 + 
               currentVelocity._3*currentVelocity._3)*0.5d*projecileMass
   }
-  
+ 
+  def transport {
+    // get density of atmosphere at current postition [1/m^3]
+
+    // calculate total density at current postition [1/m^3]
+    
+    // get total cross section for projectile-atmosphere
+
+    // get mean free path for projectile-atmosphere at current energy-position
+
+    // calculate total mean free path [m]
+    val meanFreePath: Double = 1.0e2
+
+    // calculate step size for transport
+    // if 0.2*MFP > 1km: 1km ? 0.2*MFP
+    val stepSize = {
+      if (0.2d*meanFreePath > 1.0e3) {
+        1.0e3
+      } else {
+        0.2d*meanFreePath
+      }
+    }
+
+    // draw random number for collision
+    val collisionRandy: Double = randy.nextDouble()
+
+    // calculate collision probability
+    val collisionProbability: Double = exp(-stepSize/meanFreePath)
+
+    val collisionOccurs: Boolean = {
+      if (collisionRandy > collisionProbability) true
+      else false
+    }
+
+    // branch for collision or not
+    // collision occurs
+    if (collisionOccurs) {
+
+      // calculate collision length
+
+      // calculate transport time
+
+      // calculate mixing ratio for atmosphere
+
+      // calculate collision probability array
+
+      // draw random number for collision target
+
+      // calculate reduced mass for collision
+
+      // get random angle for scattering
+
+      // update energy after collision
+
+      // update collision counters and nascent hot particles
+
+      // convert scattering angle 
+
+      // update energy, velocity, and position
+
+    }
+    // no collision occurs
+    else {
+
+    }
+
+  }
+
 }
