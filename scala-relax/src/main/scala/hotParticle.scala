@@ -1,11 +1,15 @@
 package hotParticle
 
 import atmosphere.Atmosphere
+import crossSections.CrossSections
 
 class HotParticle extends Serializable {
 
   import scala.util.Random
   import scala.math._
+  import scala.collection.mutable._
+
+  val verbosePrinting: Boolean = false
 
   var projectileName: String = ""
   var projecileMass: Double = 0.0
@@ -18,6 +22,7 @@ class HotParticle extends Serializable {
   var generation: Int = 0
   var randy: Random = new Random()
   var atmosphere: Atmosphere = new Atmosphere
+  var crossSections: CrossSections = new CrossSections
 
 
   def setParameters(name: String, 
@@ -30,7 +35,12 @@ class HotParticle extends Serializable {
     projecileMass = mass
     currentPosition = initPosition
     currentVelocity = intitVelocity
+    currentEnergy = getEnergy
     generation = particleGeneration
+    atmosphere = inputAtmosphere
+    // maximum energy for cross sections
+    val max_energy: Double = 10000.0d
+    crossSections.setParameters(projectileName,atmosphere,max_energy)
   }
 
   def getEnergy: Double = {
@@ -39,11 +49,19 @@ class HotParticle extends Serializable {
               currentVelocity._3*currentVelocity._3)*0.5d*projecileMass
   }
 
+  def getSpeed: Double = {
+    math.sqrt(currentVelocity._1*currentVelocity._1 +
+              currentVelocity._2*currentVelocity._2 +
+              currentVelocity._3*currentVelocity._3)
+  }
+
   def fullTransport {
     while (!exitConditions) {
       transport
     }
   }
+
+  def getCollisionProbability: Double = 100.0d*numberOfCollisions.toDouble/numberOfClicks.toDouble
 
   def printCollisionProbability {
     val p: Double = 100*numberOfCollisions.toDouble/numberOfClicks.toDouble
@@ -51,25 +69,37 @@ class HotParticle extends Serializable {
   }
  
   def transport {
-    // get density of atmosphere at current postition [1/m^3]
 
+    // get density of atmosphere at current postition [1/m^3]
+    val atmosphereDensity: HashMap[String, Double] = atmosphere.getAtmosphereDensity(currentPosition)
 
     // calculate total density at current postition [1/m^3]
-    
-    // get total cross section for projectile-atmosphere
+    val totalAtmosphereDensity: Double = atmosphere.getTotalAtmosphereDensity(currentPosition) 
+
+    // get total cross section for projectile-atmosphere [m^2]
+    var atmosphereTCS: HashMap[String, Double] = atmosphere.getTCS(projectileName,currentEnergy, crossSections)
 
     // get mean free path for projectile-atmosphere at current energy-position
+    var atmosphereAllMFP: HashMap[String, Double] = atmosphere.getAllMFP(atmosphereDensity, atmosphereTCS)
 
     // calculate total mean free path [m]
-    val meanFreePath: Double = 1.0e2
+    val atmosphereMFP: Double = atmosphere.getMFP(atmosphereAllMFP)
+
+    if (verbosePrinting) {
+      println("atmosphereDensity          -> " + atmosphereDensity.toString)
+      println("totalAtmosphereDensity     -> " + totalAtmosphereDensity.toString)
+      println("atmosphereTCS              -> " + atmosphereTCS.toString)
+      println("atmosphere all MFP         -> " + atmosphereAllMFP.toString)
+      println("atmosphere MFP             -> " + atmosphereMFP.toString)
+    }
 
     // calculate step size for transport
     // if 0.2*MFP > 1km: 1km ? 0.2*MFP
     val stepSize = {
-      if (0.2d*meanFreePath > 1.0e3) {
+      if (0.2d*atmosphereMFP > 1.0e3) {
         1.0e3
       } else {
-        0.2d*meanFreePath
+        0.2d*atmosphereMFP
       }
     }
 
@@ -77,7 +107,7 @@ class HotParticle extends Serializable {
     val collisionRandy: Double = randy.nextDouble()
 
     // calculate collision probability
-    val collisionProbability: Double = exp(-stepSize/meanFreePath)
+    val collisionProbability: Double = exp(-stepSize/atmosphereMFP)
 
     val collisionOccurs: Boolean = {
       if (collisionRandy > collisionProbability) true
@@ -88,15 +118,18 @@ class HotParticle extends Serializable {
     // collision occurs
     if (collisionOccurs) {
 
-      // calculate collision length
+      // calculate collision length [m]
+      val collisionLength: Double = -atmosphereMFP*math.log(collisionRandy)
 
-      // calculate transport time
+      // calculate transport time [sec]
+      val transportTime: Double = collisionLength/getSpeed
 
       // calculate mixing ratio for atmosphere
 
       // calculate collision probability array
 
       // draw random number for collision target
+      val targetRandy: Double = randy.nextDouble()
 
       // calculate reduced mass for collision
 
@@ -115,7 +148,8 @@ class HotParticle extends Serializable {
     // no collision occurs
     else {
 
-      // calculate transport time
+      // calculate transport time [sec]
+      val transportTime: Double = stepSize/getSpeed
 
       // transport particle in straight line
 

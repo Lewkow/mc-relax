@@ -1,11 +1,12 @@
 
 import parameters.Parameters
-import hotParticle.HotParticle
+import hotParticle._
 import atmosphere.Atmosphere
 import crossSections.CrossSections
 
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkConf
+import org.apache.spark.rdd.RDD
 
 import scala.collection.mutable._
 
@@ -22,7 +23,7 @@ object mc_relax extends Serializable {
     val conf = new SparkConf().setAppName("mc-relax").setMaster("local[*]")
     val sc = new SparkContext(conf)
 
-    val test = sc.parallelize(Array(1, 2, 3, 4))
+    val test: RDD[Int] = sc.parallelize(Array(1, 2, 3, 4))
     if (test.count() != 4) println("Simple Spark test failed!")
 
     //////////////////////////////////////////////////////////////////////
@@ -49,7 +50,7 @@ object mc_relax extends Serializable {
         gen1Hots(i) = new HotParticle
         gen1Hots(i).setParameters("He", 4.0d, initPos(i), initVel(i), 1, atmosphere)
     }
-    val gen1Hots_rdd = sc.parallelize(gen1Hots, N_partitions)
+    val gen1Hots_rdd: RDD[HotParticle] = sc.parallelize(gen1Hots, N_partitions)
 
     println("-- " + gen1Hots_rdd.count().toString + " initial hot particles")
 
@@ -60,7 +61,7 @@ object mc_relax extends Serializable {
     // if the required cross sections exist in database
     val crossSections = new CrossSections
     if (crossSections.haveCrossSections) {
-        println("yay!! I have the cross sections I need!")
+        // println("yay!! I have the cross sections I need!")
     } 
     // if cross sections need to be calculated before mc simulation
     else {
@@ -70,15 +71,11 @@ object mc_relax extends Serializable {
     //////////////////////////////////////////////////////////////////////
     // do transport simulation until all particles have met exit condition
     //////////////////////////////////////////////////////////////////////
-    val gen1HotsTrans_rdd = gen1Hots_rdd.map(x => x.fullTransport)
-    val gen1HotsTrans = gen1HotsTrans_rdd.collect()
-    println(gen1HotsTrans.length)
-    println(gen1HotsTrans)
-    // for (i <- 0 until gen1HotsTrans.length) {
-        // println(i)
-        // println(gen1HotsTrans(i))
-        // gen1HotsTrans(i).printCollisionProbability
-    // }
+    val gen1HotsTrans_rdd = gen1Hots_rdd.map(_.fullTransport)
+    println("Finished transporting " + gen1HotsTrans_rdd.count().toString + " particles")
+    // val gen1HotsTrans_rdd: RDD[HotParticle] = gen1Hots_rdd.map(_.fullTransport)
+    // val collisionProb_rdd: RDD[Double] = gen1HotsTrans_rdd.map(_.getCollisionProbability)
+    // println("Particles collided "+collisionProb.toString+" % of the time")
 
     //////////////////////////////////////////////////////////////////////
     // generate statistical distributions from simulation results

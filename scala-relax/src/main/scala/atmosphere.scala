@@ -1,6 +1,7 @@
 package atmosphere
 
 import scala.collection.mutable._
+import crossSections.CrossSections
 
 class Atmosphere extends Serializable {
 
@@ -23,9 +24,43 @@ class Atmosphere extends Serializable {
 
   // get density of atmosphere at position (x, y, z) [m, m, m]
   def getAtmosphereDensity(position: (Double, Double, Double)): HashMap[String, Double] = {
-    val atmosphereDensities = HashMap.empty[String, Double]
-    atmosphereParticles foreach {case (key, value) => atmosphereDensities += (key -> 1.0e-15)}
-    atmosphereParticles
+    val dummyDensity: Double = 1.0e12
+    var atmosphereDensities = HashMap.empty[String, Double]
+    atmosphereParticles foreach {case (key, value) => atmosphereDensities += (key -> dummyDensity)}
+    atmosphereDensities
+  }
+
+  // get total density of atmosphere at position (x, y, z) [m, m, m]
+  def getTotalAtmosphereDensity(position: (Double, Double, Double)): Double = {
+    val atmosphereDensities: HashMap[String, Double] = getAtmosphereDensity(position) 
+    var totalDensity: Double = 0.0d
+    atmosphereDensities foreach {case (key, value) => totalDensity += value}
+    totalDensity
+  }
+
+  def getTCS(projectile: String, energy: Double, crossSections: CrossSections): HashMap[String, Double] = {
+    var atmosphereTCS = HashMap.empty[String, Double]
+    atmosphereParticles foreach {
+      case (particle, mass) => atmosphereTCS += (particle -> crossSections.getTotalCrossSection(energy,particle))
+    }
+    atmosphereTCS
+  }
+
+  def getAllMFP(atmosphereDensities: HashMap[String, Double], 
+                atmosphereTCS: HashMap[String, Double]): HashMap[String, Double] = {
+    var atmosphereAllMFP = HashMap.empty[String, Double]
+    atmosphereDensities foreach {
+      case (particle, density) => atmosphereAllMFP += (particle -> density*atmosphereTCS(particle))
+    }
+    atmosphereAllMFP
+  }
+
+  def getMFP(atmosphereAllMFP: HashMap[String, Double]): Double = {
+    var total: Double = 0.0
+    atmosphereAllMFP foreach {
+      case (particle, y) => total += y
+    }
+    1.0d/total
   }
 
   // convert temperature from K to eV

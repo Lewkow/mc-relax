@@ -4,7 +4,7 @@ package crossSections
 import atmosphere.Atmosphere
 
 
-class CrossSections {
+class CrossSections extends Serializable {
 
   // object with current atmosphere
   var currentAtmosphere: Atmosphere = new Atmosphere
@@ -42,7 +42,7 @@ class CrossSections {
   // lab-frame energy [eV]
   // returns -> Total cross section [m^2]
   def getTotalCrossSection(energy: Double, target: String): Double = {
-    1.0d-15
+    1.0e-15
   }
 
 }
