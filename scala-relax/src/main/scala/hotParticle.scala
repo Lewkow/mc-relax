@@ -122,13 +122,7 @@ class HotParticle extends Serializable {
 
     // calculate step size for transport
     // if 0.2*MFP > 1km: 1km ? 0.2*MFP
-    val stepSize = {
-      if (0.2d*atmosphereMFP > 1.0e3) {
-        1.0e3
-      } else {
-        0.2d*atmosphereMFP
-      }
-    }
+    val stepSize = if (0.2d*atmosphereMFP > 1.0e3) 1.0e3 else 0.2d*atmosphereMFP
 
     // draw random number for collision
     val collisionRandy: Double = randy.nextDouble()
