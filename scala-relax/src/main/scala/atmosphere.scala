@@ -46,6 +46,21 @@ class Atmosphere extends Serializable {
     mixingRatios
   }
 
+  def getTargetProbability(tcs: HashMap[String, Double], mixingRatios: HashMap[String, Double]): Array[Double] = {
+    var probs = ArrayBuffer.empty[Double]
+    tcs foreach {case (key, value) => probs += value*mixingRatios(key)} 
+    val totProbs: Double = probs.sum
+    var targetProbs = ArrayBuffer.empty[Double]
+    for (i <- 0 until probs.size) {
+      var probNow: Double = 0.0
+      for (j <- 0 to i) {
+        probNow += probs(j)
+      }
+      targetProbs += probNow/totProbs
+    }
+    targetProbs.toArray
+  }
+
   def getTCS(projectile: String, energy: Double, crossSections: CrossSections): HashMap[String, Double] = {
     var atmosphereTCS = HashMap.empty[String, Double]
     atmosphereParticles foreach {

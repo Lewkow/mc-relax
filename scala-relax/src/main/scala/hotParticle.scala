@@ -154,7 +154,8 @@ class HotParticle extends Serializable {
       // calculate mixing ratio for atmosphere
       val mixingRatios: HashMap[String, Double] = atmosphere.getMixingRatios(atmosphereDensity, totalAtmosphereDensity)
 
-      // calculate collision probability array
+      // calculate collision target probability array
+      val targetProbability: Array[Double] = atmosphere.getTargetProbability(atmosphereTCS, mixingRatios)
 
       // draw random number for collision target
       val targetRandy: Double = randy.nextDouble()
