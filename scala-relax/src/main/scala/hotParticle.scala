@@ -3,6 +3,26 @@ package hotParticle
 import atmosphere.Atmosphere
 import crossSections.CrossSections
 
+class HotVector extends Serializable {
+  var x: Double = 0
+  var y: Double = 0
+  var z: Double = 0
+
+  def setup(x0: Double, y0: Double, z0: Double) {
+    x = x0; y = y0; z = z0
+  }
+
+  override def toString = s"($x, $y, $z)"
+
+  def update(x0: Double, y0: Double, z0: Double) { 
+    // println(s"($x, $y, $z)\n($x0, $y0, $z0)")
+    x = x0; y = y0; z = z0 
+  }
+
+  def toTuple: (Double, Double, Double) = {(x,y,z)}
+
+}
+
 class HotParticle extends Serializable {
 
   import scala.util.Random
@@ -13,12 +33,13 @@ class HotParticle extends Serializable {
 
   var projectileName: String = ""
   var projecileMass: Double = 0.0
-  var currentPosition: (Double, Double, Double) = (0.0, 0.0, 0.0)
-  var currentVelocity: (Double, Double, Double) = (0.0, 0.0, 0.0)
+  var currentPosition = new HotVector
+  var currentVelocity = new HotVector
   var currentEnergy: Double = 0.0
   var currentTime: Double = 0.0
   var numberOfCollisions: Int = 0
   var numberOfClicks: Int = 0
+  var collisionProbability: Double = 0.0
   var generation: Int = 0
   var randy: Random = new Random()
   var atmosphere: Atmosphere = new Atmosphere
@@ -33,8 +54,8 @@ class HotParticle extends Serializable {
                     inputAtmosphere: Atmosphere) {
     projectileName = name
     projecileMass = mass
-    currentPosition = initPosition
-    currentVelocity = intitVelocity
+    currentPosition.setup(initPosition._1,initPosition._2,initPosition._3)
+    currentVelocity.setup(intitVelocity._1,intitVelocity._2,intitVelocity._3)
     currentEnergy = getEnergy
     generation = particleGeneration
     atmosphere = inputAtmosphere
@@ -44,24 +65,27 @@ class HotParticle extends Serializable {
   }
 
   def getEnergy: Double = {
-    math.sqrt(currentVelocity._1*currentVelocity._1 +
-              currentVelocity._2*currentVelocity._2 + 
-              currentVelocity._3*currentVelocity._3)*0.5d*projecileMass
+    math.sqrt(math.pow(currentVelocity.x,2) +
+              math.pow(currentVelocity.y,2) + 
+              math.pow(currentVelocity.z,2))*0.5d*projecileMass
   }
 
   def getSpeed: Double = {
-    math.sqrt(currentVelocity._1*currentVelocity._1 +
-              currentVelocity._2*currentVelocity._2 +
-              currentVelocity._3*currentVelocity._3)
+    math.sqrt(math.pow(currentVelocity.x,2) +
+              math.pow(currentVelocity.y,2) + 
+              math.pow(currentVelocity.z,2))
   }
 
   def fullTransport {
     while (!exitConditions) {
       transport
     }
+    getCollisionProbability
   }
 
-  def getCollisionProbability: Double = 100.0d*numberOfCollisions.toDouble/numberOfClicks.toDouble
+  def getCollisionProbability { 
+    collisionProbability = 100.0d*numberOfCollisions.toDouble/numberOfClicks.toDouble
+  }
 
   def printCollisionProbability {
     val p: Double = 100*numberOfCollisions.toDouble/numberOfClicks.toDouble
@@ -71,15 +95,18 @@ class HotParticle extends Serializable {
   def transport {
 
     // get density of atmosphere at current postition [1/m^3]
-    val atmosphereDensity: HashMap[String, Double] = atmosphere.getAtmosphereDensity(currentPosition)
+    // [String, Double] -> [targName, targDensity(pos)]
+    val atmosphereDensity: HashMap[String, Double] = atmosphere.getAtmosphereDensity(currentPosition.toTuple)
 
     // calculate total density at current postition [1/m^3]
-    val totalAtmosphereDensity: Double = atmosphere.getTotalAtmosphereDensity(currentPosition) 
+    val totalAtmosphereDensity: Double = atmosphere.getTotalAtmosphereDensity(currentPosition.toTuple) 
 
     // get total cross section for projectile-atmosphere [m^2]
+    // [String, Double] -> [targName, projTargTCS(pos)]
     var atmosphereTCS: HashMap[String, Double] = atmosphere.getTCS(projectileName,currentEnergy, crossSections)
 
     // get mean free path for projectile-atmosphere at current energy-position
+    // [String, Double] -> [targName, projTargMFP(pos)]
     var atmosphereAllMFP: HashMap[String, Double] = atmosphere.getAllMFP(atmosphereDensity, atmosphereTCS)
 
     // calculate total mean free path [m]
@@ -152,8 +179,17 @@ class HotParticle extends Serializable {
       val transportTime: Double = stepSize/getSpeed
 
       // transport particle in straight line
+      val velMag: Double = getSpeed
 
-      // update position and velocity 
+      // // update velocity v1 = v0/|v|
+      currentVelocity.update(currentVelocity.x/velMag,
+                             currentVelocity.y/velMag,
+                             currentVelocity.z/velMag)
+
+      // // update position x1 = x0 + dr*v1
+      currentPosition.update(currentPosition.x + stepSize*currentVelocity.x,
+                             currentPosition.y + stepSize*currentVelocity.y,
+                             currentPosition.z + stepSize*currentVelocity.z)
 
     }
     numberOfClicks += 1

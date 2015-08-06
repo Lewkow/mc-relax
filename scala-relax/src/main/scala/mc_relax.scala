@@ -1,6 +1,6 @@
 
 import parameters.Parameters
-import hotParticle._
+import hotParticle.HotParticle
 import atmosphere.Atmosphere
 import crossSections.CrossSections
 
@@ -50,7 +50,7 @@ object mc_relax extends Serializable {
         gen1Hots(i) = new HotParticle
         gen1Hots(i).setParameters("He", 4.0d, initPos(i), initVel(i), 1, atmosphere)
     }
-    val gen1Hots_rdd: RDD[HotParticle] = sc.parallelize(gen1Hots, N_partitions)
+    val gen1Hots_rdd = sc.parallelize(gen1Hots, N_partitions)
 
     println("-- " + gen1Hots_rdd.count().toString + " initial hot particles")
 
@@ -71,10 +71,14 @@ object mc_relax extends Serializable {
     //////////////////////////////////////////////////////////////////////
     // do transport simulation until all particles have met exit condition
     //////////////////////////////////////////////////////////////////////
-    val gen1HotsTrans_rdd = gen1Hots_rdd.map(_.fullTransport)
-    println("Finished transporting " + gen1HotsTrans_rdd.count().toString + " particles")
-    // val gen1HotsTrans_rdd: RDD[HotParticle] = gen1Hots_rdd.map(_.fullTransport)
-    // val collisionProb_rdd: RDD[Double] = gen1HotsTrans_rdd.map(_.getCollisionProbability)
+    var gen1HotsTrans_rdd = gen1Hots_rdd.map(_.fullTransport)
+    var NP = gen1HotsTrans_rdd.count() 
+    println("Finished transporting " + NP.toString + " particles")
+    var collisionProb: Double = gen1Hots_rdd.map(_.collisionProbability).reduce(_+_)
+    var collisionNumber: Int = gen1Hots_rdd.map(_.numberOfCollisions).reduce(_+_)
+    // var collisionProb: Double = gen1Hots_rdd.map(_.collisionProbability).reduce(_+_)/NP.toDouble
+    println("collisionProb   -> " + collisionProb.asInstanceOf[Double].toString)
+    println("collisionNumber -> " + collisionNumber.asInstanceOf[Double].toString)
     // println("Particles collided "+collisionProb.toString+" % of the time")
 
     //////////////////////////////////////////////////////////////////////
