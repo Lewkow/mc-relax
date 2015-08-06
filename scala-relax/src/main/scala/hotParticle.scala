@@ -152,6 +152,7 @@ class HotParticle extends Serializable {
       val transportTime: Double = collisionLength/getSpeed
 
       // calculate mixing ratio for atmosphere
+      val mixingRatios: HashMap[String, Double] = atmosphere.getMixingRatios(atmosphereDensity, totalAtmosphereDensity)
 
       // calculate collision probability array
 

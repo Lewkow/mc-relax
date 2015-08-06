@@ -38,6 +38,14 @@ class Atmosphere extends Serializable {
     totalDensity
   }
 
+  // get mixing ratios for atmosphere
+  // x_density / total_density
+  def getMixingRatios(densities: HashMap[String, Double], density: Double): HashMap[String, Double] = {
+    val mixingRatios = HashMap.empty[String, Double]
+    densities foreach {case (key, value) => mixingRatios += (key -> value/density)}
+    mixingRatios
+  }
+
   def getTCS(projectile: String, energy: Double, crossSections: CrossSections): HashMap[String, Double] = {
     var atmosphereTCS = HashMap.empty[String, Double]
     atmosphereParticles foreach {
