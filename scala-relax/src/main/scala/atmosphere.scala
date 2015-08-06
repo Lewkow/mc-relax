@@ -88,6 +88,23 @@ class Atmosphere extends Serializable {
     1.0d/total
   }
 
+  def getTarget(probs: HashMap[String, Double], randy: Double): String = {
+    var target: String = ""
+
+    for (j <- 0 until probs.size) {
+      if (j == 0) {
+        if (randy <= probs(probs.keys.toList(j))) target = probs.keys.toList(j)
+      }
+      else if (j == probs.size-1) {
+        if (randy >= probs(probs.keys.toList(j-1))) target = probs.keys.toList(j) 
+      }
+      else {
+        if (randy > probs(probs.keys.toList(j-1)) && randy < probs(probs.keys.toList(j))) target = probs.keys.toList(j)
+      }
+    }
+    target
+  }
+
   // convert temperature from K to eV
   def temperatureEV: Double = {
     // convert temperature from K to eV
