@@ -23,6 +23,8 @@ Monte Carlo atomic and molecular particle simulator: Simulating the relaxation o
   * Collision counter
 * numberOfClicks: Int
    * Click counter
+* transport
+  * Transport a HotParticle object one click and return (projectile, secondary) tuple which contains the updated projectile, after the transport, and the particle which was collided with if a collision occured. If no collision occured, secondary will have a currentEnergy = 0. 
 
 ### class Atmosphere
 * atmosphereParticles: Map[String: Double]
@@ -32,5 +34,3 @@ Monte Carlo atomic and molecular particle simulator: Simulating the relaxation o
 * Double = temperatureEV
   * Returns temperature in eV
 
-#### (HotParticle, HotParticle) = transportOneClick(hot: HotParticle)
-* Transport a HotParticle object one click and return (projectile, secondary) tuple which contains the updated projectile, after the transport, and the particle which was collided with if a collision occured. If no collision occured, secondary will have a currentEnergy = 0. 
