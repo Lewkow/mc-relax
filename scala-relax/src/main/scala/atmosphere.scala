@@ -26,7 +26,8 @@ class Atmosphere extends Serializable {
   def getAtmosphereDensity(position: (Double, Double, Double)): HashMap[String, Double] = {
     val dummyDensity: Double = 1.0e12
     var atmosphereDensities = HashMap.empty[String, Double]
-    atmosphereParticles foreach {case (key, value) => atmosphereDensities += (key -> dummyDensity)}
+    var counter: Int = 1
+    atmosphereParticles foreach {case (key, value) => atmosphereDensities += (key -> counter*dummyDensity); counter += 1}
     atmosphereDensities
   }
 

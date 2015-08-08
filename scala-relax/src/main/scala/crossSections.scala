@@ -2,9 +2,12 @@
 package crossSections
 
 import atmosphere.Atmosphere
-
+import scala.util.Random
 
 class CrossSections extends Serializable {
+
+  // random object generator
+  var randy: Random = new Random()
 
   // object with current atmosphere
   var currentAtmosphere: Atmosphere = new Atmosphere
@@ -35,8 +38,10 @@ class CrossSections extends Serializable {
   // lab-frame energy [eV]
   // returns -> Random scattering angle [deg]
   def getScatteringAngle(energy: Double, target: String): Double = {
-    0.5d
+    gaussianScatteringAngle(10.0d) 
   }
+
+  def gaussianScatteringAngle(mean: Double): Double = { randy.nextGaussian() + mean }
 
   // get total cross section for projectile-target collision given lab energy [eV]
   // lab-frame energy [eV]

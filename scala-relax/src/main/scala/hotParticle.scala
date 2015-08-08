@@ -1,5 +1,8 @@
 package hotParticle
 
+import scala.util.Random
+import scala.math._
+import scala.collection.mutable._
 import atmosphere.Atmosphere
 import crossSections.CrossSections
 
@@ -25,12 +28,6 @@ class HotVector extends Serializable {
 
 class HotParticle extends Serializable {
 
-  import scala.util.Random
-  import scala.math._
-  import scala.collection.mutable._
-
-  val verbosePrinting: Boolean = false
-
   var projectileName: String = ""
   var projecileMass: Double = 0.0
   var currentPosition = new HotVector
@@ -44,7 +41,7 @@ class HotParticle extends Serializable {
   var randy: Random = new Random()
   var atmosphere: Atmosphere = new Atmosphere
   var crossSections: CrossSections = new CrossSections
-
+  var trans: Transport = new Transport
 
   def setParameters(name: String, 
                     mass: Double, 
@@ -76,13 +73,6 @@ class HotParticle extends Serializable {
               math.pow(currentVelocity.z,2))
   }
 
-  def fullTransport {
-    while (!exitConditions) {
-      transport
-    }
-    getCollisionProbability
-  }
-
   def getCollisionProbability { 
     collisionProbability = 100.0d*numberOfCollisions.toDouble/numberOfClicks.toDouble
   }
@@ -91,26 +81,125 @@ class HotParticle extends Serializable {
     val p: Double = 100*numberOfCollisions.toDouble/numberOfClicks.toDouble
     println(p.toString + " collisions per click")
   }
- 
-  def transport {
+
+  def exitConditions: Boolean = {
+    if (currentEnergy < 5.0d) {
+      // println("clicks     -> "+numberOfClicks.toString)
+      // println("collisions -> "+numberOfCollisions.toString)
+      true 
+    } else {
+      false
+    }
+    // if (numberOfCollisions > 100) true
+    // else false
+  }
+
+  def collisionUpdate(theta: Double, phi: Double, dx: Double) {
+    val thetaRads: Double = toRadians(theta)
+    val phiRads: Double = toRadians(phi)
+
+    // update position for straight line before collision
+    currentPosition.update(currentPosition.x + currentVelocity.x*dx,
+                           currentPosition.y + currentVelocity.y*dx,
+                           currentPosition.z + currentVelocity.z*dx)
+
+    if (currentVelocity.z == 1.0d) {
+      currentVelocity.update(math.sin(thetaRads)*math.cos(phiRads),
+                             math.sin(thetaRads)*math.sin(phiRads),
+                             math.cos(thetaRads))
+    } else if (currentVelocity.z == -1.0d) {
+      currentVelocity.update(math.sin(thetaRads)*math.cos(phiRads),
+                             -math.sin(thetaRads)*math.sin(phiRads),
+                             -math.cos(thetaRads))
+    } else {
+      val const: Double = math.sqrt(1.0d - math.pow(currentVelocity.z,2.0))
+      val x: Double = (math.sin(thetaRads)*(currentVelocity.x*currentVelocity.z*math.cos(phiRads)-currentVelocity.y*math.sin(phiRads)))/const +
+                      currentVelocity.x*math.cos(thetaRads)
+      val y: Double = (math.sin(thetaRads)*(currentVelocity.y*currentVelocity.z*math.cos(phiRads)+currentVelocity.x*math.sin(phiRads)))/const +
+                      currentVelocity.y*math.cos(thetaRads)
+      val z: Double = -const*math.sin(thetaRads)*cos(phiRads) + currentVelocity.z*math.cos(thetaRads)
+      currentVelocity.update(x, y, z)
+    }
+  }
+
+  def noCollisionUpdate(dx: Double) {
+    // transport particle in straight line
+    val velMag: Double = getSpeed
+
+   // update velocity v1 = v0/|v|
+   currentVelocity.update(currentVelocity.x/velMag,
+                          currentVelocity.y/velMag,
+                          currentVelocity.z/velMag)
+
+   // update position x1 = x0 + dr*v1
+   currentPosition.update(currentPosition.x + dx*currentVelocity.x,
+                          currentPosition.y + dx*currentVelocity.y,
+                          currentPosition.z + dx*currentVelocity.z)
+
+  }
+
+  // cmScatteringAngle -> center of mass scattering angle [deg]
+  // targetMass -> mass of target particle
+  // returns labScatteringAngle -> lab frame scattering angle [deg]
+  def cmToLabAngle(cmScatteringAngle: Double, targetMass: Double): Double = {
+    val ratio: Double = projecileMass/targetMass
+    val tmp: Double = ( math.cos(toRadians(cmScatteringAngle)) + ratio ) / 
+                      ( math.sqrt(1.0d + 2.0d*ratio*math.cos(toRadians(cmScatteringAngle)) + math.pow(ratio,2.0)) )
+    toDegrees(math.acos(tmp))
+  }
+
+  def newEnergy(scatteringAngle: Double, targetMass: Double): Double = {
+    val ratio: Double = projecileMass/targetMass
+    var constant: Double = (1.0d + 2.0d*ratio*math.cos(toRadians(scatteringAngle)) + math.pow(ratio,2.0)) /
+                           (math.pow((1.0d + ratio),2.0))
+    if (constant > 1.0d) constant = 1.0d
+    currentEnergy*constant
+  }
+
+  def toDegrees(rad: Double): Double = { rad*360.0d/(2.0d*math.Pi) }
+
+  def toRadians(deg: Double): Double = { deg*2.0d*math.Pi/360.0d }
+
+}
+
+
+class Transport extends Serializable {
+
+  def fullTransport(z: HotParticle): HotParticle = {
+    var tmp: HotParticle = z
+    while (!tmp.exitConditions) {
+      tmp = stepTransport(tmp)
+    }
+    tmp
+  }
+
+  /////////////////////////////////////// 
+  // Transport a hot particle a single
+  // step and update parameters
+  /////////////////////////////////////// 
+  def stepTransport(z: HotParticle): HotParticle = {
+
+    var randy: Random = new Random()
 
     // get density of atmosphere at current postition [1/m^3]
     // [String, Double] -> [targName, targDensity(pos)]
-    val atmosphereDensity: HashMap[String, Double] = atmosphere.getAtmosphereDensity(currentPosition.toTuple)
+    val atmosphereDensity: HashMap[String, Double] = z.atmosphere.getAtmosphereDensity(z.currentPosition.toTuple)
 
     // calculate total density at current postition [1/m^3]
-    val totalAtmosphereDensity: Double = atmosphere.getTotalAtmosphereDensity(currentPosition.toTuple) 
+    val totalAtmosphereDensity: Double = z.atmosphere.getTotalAtmosphereDensity(z.currentPosition.toTuple) 
 
     // get total cross section for projectile-atmosphere [m^2]
     // [String, Double] -> [targName, projTargTCS(pos)]
-    var atmosphereTCS: HashMap[String, Double] = atmosphere.getTCS(projectileName,currentEnergy, crossSections)
+    var atmosphereTCS: HashMap[String, Double] = z.atmosphere.getTCS(z.projectileName, z.currentEnergy, z.crossSections)
 
     // get mean free path for projectile-atmosphere at current energy-position
     // [String, Double] -> [targName, projTargMFP(pos)]
-    var atmosphereAllMFP: HashMap[String, Double] = atmosphere.getAllMFP(atmosphereDensity, atmosphereTCS)
+    var atmosphereAllMFP: HashMap[String, Double] = z.atmosphere.getAllMFP(atmosphereDensity, atmosphereTCS)
 
     // calculate total mean free path [m]
-    val atmosphereMFP: Double = atmosphere.getMFP(atmosphereAllMFP)
+    val atmosphereMFP: Double = z.atmosphere.getMFP(atmosphereAllMFP)
+
+    val verbosePrinting: Boolean = false
 
     if (verbosePrinting) {
       println("atmosphereDensity          -> " + atmosphereDensity.toString)
@@ -128,7 +217,7 @@ class HotParticle extends Serializable {
     val collisionRandy: Double = randy.nextDouble()
 
     // calculate collision probability
-    val collisionProbability: Double = exp(-stepSize/atmosphereMFP)
+    val collisionProbability: Double = math.exp(-stepSize/atmosphereMFP)
 
     val collisionOccurs: Boolean = {
       if (collisionRandy > collisionProbability) true
@@ -143,58 +232,51 @@ class HotParticle extends Serializable {
       val collisionLength: Double = -atmosphereMFP*math.log(collisionRandy)
 
       // calculate transport time [sec]
-      val transportTime: Double = collisionLength/getSpeed
+      val transportTime: Double = collisionLength/z.getSpeed
 
       // calculate mixing ratio for atmosphere
-      val mixingRatios: HashMap[String, Double] = atmosphere.getMixingRatios(atmosphereDensity, totalAtmosphereDensity)
+      val mixingRatios: HashMap[String, Double] = z.atmosphere.getMixingRatios(atmosphereDensity, totalAtmosphereDensity)
 
       // calculate collision target probability array
-      val targetProbability: HashMap[String, Double] = atmosphere.getTargetProbability(atmosphereTCS, mixingRatios)
+      val targetProbability: HashMap[String, Double] = z.atmosphere.getTargetProbability(atmosphereTCS, mixingRatios)
 
       // draw random number and get collision target
-      val target: String = atmosphere.getTarget(targetProbability, randy.nextDouble())
+      val target: String = z.atmosphere.getTarget(targetProbability, randy.nextDouble())
+      val targetMass: Double = z.atmosphere.atmosphereParticles(target)
 
       // calculate reduced mass for collision
+      val mu: Double = targetMass*z.projecileMass/(targetMass+z.projecileMass)
 
-      // get random angle for scattering
+      // get random angle for scattering [deg]
+      val scatteringAngle: Double = z.crossSections.getScatteringAngle(z.currentEnergy, target)
+
+      // get random phi scattring angle [deg]
+      val phiScatteringAngle: Double = 360.0d*randy.nextDouble()
 
       // update energy after collision
+      z.currentEnergy = z.newEnergy(scatteringAngle, targetMass)
 
       // update collision counters and nascent hot particles
-      numberOfCollisions += 1
+      z.numberOfCollisions += 1
 
       // convert scattering angle 
+      val scatteringAngleLabFrame: Double = z.cmToLabAngle(scatteringAngle, targetMass)
 
       // update energy, velocity, and position
+      z.collisionUpdate(scatteringAngle, phiScatteringAngle, collisionLength)
 
     }
     // no collision occurs
     else {
 
       // calculate transport time [sec]
-      val transportTime: Double = stepSize/getSpeed
+      val transportTime: Double = stepSize/z.getSpeed
 
-      // transport particle in straight line
-      val velMag: Double = getSpeed
-
-      // // update velocity v1 = v0/|v|
-      currentVelocity.update(currentVelocity.x/velMag,
-                             currentVelocity.y/velMag,
-                             currentVelocity.z/velMag)
-
-      // // update position x1 = x0 + dr*v1
-      currentPosition.update(currentPosition.x + stepSize*currentVelocity.x,
-                             currentPosition.y + stepSize*currentVelocity.y,
-                             currentPosition.z + stepSize*currentVelocity.z)
-
+      // update velocity and position
+      z.noCollisionUpdate(stepSize)
     }
-    numberOfClicks += 1
-
+    z.numberOfClicks += 1
+    z
   }
-
-  def exitConditions: Boolean = {
-    if (numberOfCollisions > 100) true
-    else false
-  }
-
 }
+
