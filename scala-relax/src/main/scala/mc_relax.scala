@@ -8,7 +8,11 @@ import org.apache.spark.SparkContext
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 
-import scala.collection.mutable._
+import scala.collection.mutable.HashMap
+
+import java.io.File
+import com.typesafe.config.{ Config, ConfigFactory }
+import scala.io.Source
 
 object mc_relax extends Serializable {
 
@@ -17,11 +21,22 @@ object mc_relax extends Serializable {
   //////////////////////////////////////////////////////////////////////
   def main(args: Array[String]) {
 
+
+    //////////////////////////////////////////////////////////////////////
+    // read input file
+    //////////////////////////////////////////////////////////////////////
+    // example of how system properties override; note this
+    // must be set before the config lib is used
+    System.setProperty("simple-lib.whatever", "This value comes from a system property")
+
+    // Load our own config values from the default location, application.conf
+    val conf = ConfigFactory.load()
+    val N_Hots: Int = conf.getInt("relax.NumberParticles")
+   
     //////////////////////////////////////////////////////////////////////
     // get Spark Context
     //////////////////////////////////////////////////////////////////////
-    val conf = new SparkConf().setAppName("mc-relax").setMaster("local[*]")
-    val sc = new SparkContext(conf)
+    val sc = new SparkContext(new SparkConf().setAppName("mc-relax").setMaster("local[1]"))
 
     val test: RDD[Int] = sc.parallelize(Array(1, 2, 3, 4))
     if (test.count() != 4) println("Simple Spark test failed!")
@@ -41,7 +56,6 @@ object mc_relax extends Serializable {
     // set initial parameters
     //////////////////////////////////////////////////////////////////////
     // Rdd of initial hot particles
-    val N_Hots: Int = 100
     val N_partitions: Int = 4
     val initPos: Array[(Double, Double, Double)] = parameters.getInitialPositions(N_Hots)
     val initVel: Array[(Double, Double, Double)] = parameters.getInitialVelocities(N_Hots)
