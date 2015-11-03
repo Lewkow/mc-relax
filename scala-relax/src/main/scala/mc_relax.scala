@@ -14,7 +14,7 @@ import java.io.File
 import com.typesafe.config.{ Config, ConfigFactory }
 import scala.io.Source
 
-object mc_relax extends Serializable {
+object mcRelax extends Serializable {
 
   //////////////////////////////////////////////////////////////////////
   // main relaxation function
