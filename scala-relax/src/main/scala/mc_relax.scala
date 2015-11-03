@@ -24,19 +24,15 @@ object mc_relax extends Serializable {
 
     //////////////////////////////////////////////////////////////////////
     // read input file
-    //////////////////////////////////////////////////////////////////////
-    // example of how system properties override; note this
-    // must be set before the config lib is used
-    System.setProperty("simple-lib.whatever", "This value comes from a system property")
-
     // Load our own config values from the default location, application.conf
+    //////////////////////////////////////////////////////////////////////
     val conf = ConfigFactory.load()
     val N_Hots: Int = conf.getInt("relax.NumberParticles")
    
     //////////////////////////////////////////////////////////////////////
     // get Spark Context
     //////////////////////////////////////////////////////////////////////
-    val sc = new SparkContext(new SparkConf().setAppName("mc-relax").setMaster("local[1]"))
+    val sc = new SparkContext(new SparkConf().setAppName("mc-relax").setMaster("local[*]"))
 
     val test: RDD[Int] = sc.parallelize(Array(1, 2, 3, 4))
     if (test.count() != 4) println("Simple Spark test failed!")
@@ -48,7 +44,7 @@ object mc_relax extends Serializable {
     // (system_comp, system_dist, system_escape_params)
     //////////////////////////////////////////////////////////////////////
     val parameters = new Parameters
-    parameters.read_parameters("test_filename.dat")
+    parameters.readParameters("test_filename.dat")
     val atmosphere: Atmosphere = new Atmosphere
     atmosphere.setParameters(HashMap[String, Double]("CO2" -> 44.0d, "O" -> 16.0d, "He" -> 4.0d), 100.0d)
 
