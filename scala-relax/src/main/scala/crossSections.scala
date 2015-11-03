@@ -3,6 +3,7 @@ package crossSections
 
 import atmosphere.Atmosphere
 import scala.util.Random
+import math._
 
 class CrossSections extends Serializable {
 
@@ -21,6 +22,49 @@ class CrossSections extends Serializable {
   // projectile particle name
   var projectileName: String = ""
 
+  // get lambda for atom-atom and atom-molecule
+  def getLambda(target: String): Double = {
+    1.0
+  }
+
+  def getReducedMass(target: String): Double = {
+    2.0
+  }
+
+  // universal amplitude
+  def universalAmplitude(energy: Double, angle: Double, target: String): Double = {
+    val tau0: Double = 50.12
+    val c1: Double = -0.13
+    val c2: Double = 1.0 
+    val c3: Double = 2.7 
+    val c4: Double = 10.0 
+    val c5: Double = 2.04 
+    val c6: Double = -0.03 
+    val c7: Double = 32.3
+    val lam: Double = getLambda(target) 
+    val tau: Double = energy*angle/getReducedMass(target)
+    val x: Double = math.log(tau)
+    val c: Double = lam/(angle*math.sin(angle))
+    var amp: Double = 0.0
+    if (tau >= tau0) {
+      amp = c*math.exp( c1*x + c2*x + c3 )
+    }
+    else {
+      amp = c*c4*math.exp( c5 + c6*x ) + c7
+    }
+    amp
+  }
+
+  // universal scattering random angle
+  def universalScatteringAngle(energy: Double, target: String): Double = {
+    universalTotalCrossSection(energy, target)
+  }
+
+  def universalTotalCrossSection(energy: Double, target: String): Double = {
+    val N_angles: Double = 10000
+    val da: Double = math.Pi*2.0/N_angles  
+    da   
+  }
 
   // constructor for object
   def setParameters(projectile: String, inAtmosphere: Atmosphere, maximumEnergy: Double) {
