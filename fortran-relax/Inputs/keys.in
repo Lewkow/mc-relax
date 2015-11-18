@@ -4,8 +4,8 @@
 #	 Turn ON(1) or OFF(0) different tests	
 ############################################################
 
-1							### LISM relaxation (LISM_keys.in)
-0							### Planetary relaxation (planet_keys.in)
+0							### LISM relaxation (LISM_keys.in)
+1							### Planetary relaxation (planet_keys.in)
 0             ### ENA Production
 0             ### Average Scattering Angles
 0							### SH MC simulation
