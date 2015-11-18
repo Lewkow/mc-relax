@@ -45,13 +45,13 @@ Install Vagrant at http://www.vagrantup.com/downloads
 
 Once installed, the vagrant box can be started
   ```
-  $ cd fortran-relax
+  $ cd mc-relax
   $ vagrant up
   ```
 
 Once the Vagrant box is started you can ssh into the box
   ```
-  $ cd fortran-relax
+  $ cd mc-relax
   $ vagrant ssh
   ```
 
@@ -61,3 +61,14 @@ Now in the Vagrant box, you can run mc-relax
   $ ./BUILD 2
   ```
 
+You can turn off your vagrant box with
+  ```
+  $ cd mc-relax
+  $ vagrant halt
+  ```
+
+You can also completely destroy your vagrant box state, removing any changes you made to that box with
+  ```
+  $ cd mc-relax
+  $ vagrant destroy
+  ```
