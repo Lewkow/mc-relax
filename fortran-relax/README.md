@@ -19,6 +19,11 @@
 
 ## Usage
 
+Clone this github repo
+  ```
+  $ git clone https://github.com/Lewkow/mc-relax.git
+  ```
+
 The tables used for the Monte Carlo simulation are too large to put in the github repository. They are available upon request from the author at nlewkow@gmail.com
 
 Once the tables tarball has been downloaded, it needs to be untared and the files moved to the fortran-relax/Tables directory
