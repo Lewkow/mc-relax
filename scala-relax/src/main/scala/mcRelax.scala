@@ -71,7 +71,7 @@ object mcRelax extends Serializable {
     // if the required cross sections exist in database
     val crossSections = new CrossSections
     if (crossSections.haveCrossSections) {
-        // println("yay!! I have the cross sections I need!")
+        println("yay!! I have the cross sections I need!")
     } 
     // if cross sections need to be calculated before mc simulation
     else {
@@ -82,12 +82,18 @@ object mcRelax extends Serializable {
     // do transport simulation until all particles have met exit condition
     //////////////////////////////////////////////////////////////////////
     var gen1HotsTrans_rdd: RDD[HotParticle] = gen1Hots_rdd.map(x => x.trans.fullTransport(x))
+    gen1HotsTrans_rdd.cache()
     var NP = gen1HotsTrans_rdd.count() 
     println("Finished transporting " + NP.toString + " particles")
+
+    // TESTS
+    test_collisionCounts(gen1HotsTrans_rdd)
+
+    // PRINT RESULTS TO SCREEN
     var collisionNumber: Int = gen1HotsTrans_rdd.map(x => x.numberOfCollisions).reduce(_+_)
     var clickNumber: Int = gen1HotsTrans_rdd.map(x => x.numberOfClicks).reduce(_+_)
-    // println("collisionNumber -> " + collisionNumber.toString)
-    // println("clickNumber     -> " + clickNumber.toString)
+    println("collisionNumber -> " + collisionNumber.toString)
+    println("clickNumber     -> " + clickNumber.toString)
     println("collision probability -> "+(collisionNumber.toDouble/clickNumber.toDouble).toString)
 
     //////////////////////////////////////////////////////////////////////
@@ -104,6 +110,12 @@ object mcRelax extends Serializable {
 
   }
 
-
+def test_collisionCounts(hotTrans: RDD[HotParticle]) {
+    val allCollisionNumbers: Array[Int] = hotTrans.map(x => x.numberOfCollisions).collect()
+    val collisionNumber: Int = hotTrans.map(x => x.numberOfCollisions).reduce(_+_)
+    if (allCollisionNumbers.sum == collisionNumber) { 
+        println("Collision number test PASSSED") 
+    } else { println("Collision number test FAILED") }
+}
 
 }
