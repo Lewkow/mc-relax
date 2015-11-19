@@ -6,7 +6,7 @@ import scala.collection.mutable._
 import atmosphere.Atmosphere
 import crossSections.CrossSections
 
-class HotVector extends Serializable {
+class Vector extends Serializable {
   var x: Double = 0
   var y: Double = 0
   var z: Double = 0
@@ -30,8 +30,8 @@ class HotParticle extends Serializable {
 
   var projectileName: String = ""
   var projecileMass: Double = 0.0
-  var currentPosition = new HotVector
-  var currentVelocity = new HotVector
+  var currentPosition = new Vector
+  var currentVelocity = new Vector
   var currentEnergy: Double = 0.0
   var currentTime: Double = 0.0
   var numberOfCollisions: Int = 0
@@ -71,6 +71,10 @@ class HotParticle extends Serializable {
     math.sqrt(math.pow(currentVelocity.x,2) +
               math.pow(currentVelocity.y,2) + 
               math.pow(currentVelocity.z,2))
+  }
+
+  def printNumberOfCollisions {
+    println(numberOfCollisions.toString + " total collisions")
   }
 
   def getCollisionProbability { 
@@ -170,6 +174,7 @@ class Transport extends Serializable {
     while (!tmp.exitConditions) {
       tmp = stepTransport(tmp)
     }
+    // println("This particle had " + z.numberOfCollisions.toString + " total collisions")
     tmp
   }
 
