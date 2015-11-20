@@ -24,9 +24,9 @@ class Parameters {
   def getInitialVelocities(N_particles: Int): Array[(Double, Double, Double)] = {
     var initVel: Array[(Double, Double, Double)] = new Array[(Double, Double, Double)](N_particles)
     for (i <- 0 until initVel.length) {
-      initVel(i) = (10.0d - randy.nextDouble*20.0d, 
-                    10.0d - randy.nextDouble*20.0d,
-                    10.0d - randy.nextDouble*20.0d)
+      initVel(i) = (1000.0d - randy.nextDouble*2000.0d, 
+                    1000.0d - randy.nextDouble*2000.0d,
+                    1000.0d - randy.nextDouble*2000.0d)
     }
     initVel 
   }

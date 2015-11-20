@@ -7,7 +7,7 @@ import math._
 
 class CrossSections extends Serializable {
 
-  val use_Universal: Boolean = false
+  val use_Universal: Boolean = true
 
   // number of angles for numeric integrations
   val N_angles: Int = 10000
@@ -27,13 +27,22 @@ class CrossSections extends Serializable {
   // projectile particle name
   var projectileName: String = ""
 
+  // constructor for object
+  def setParameters(projectile: String, inAtmosphere: Atmosphere, maximumEnergy: Double) {
+    projectileName = projectile
+    currentAtmosphere = inAtmosphere
+    maxEnergy = maximumEnergy 
+  }
+
   // get lambda for atom-atom and atom-molecule
   def getLambda(target: String): Double = {
     1.0
   }
 
   def getReducedMass(target: String): Double = {
-    2.0
+    val projMass: Double = currentAtmosphere.getParticleMass(projectileName)
+    val targMass: Double = currentAtmosphere.getParticleMass(target)
+    (projMass * targMass) / (projMass + targMass)
   }
 
   // universal amplitude
@@ -90,13 +99,6 @@ class CrossSections extends Serializable {
       tcs += da*2.0*math.Pi*math.sin(toRadians(theta))*universalAmplitude(energy, theta, target)
     }
     tcs
-  }
-
-  // constructor for object
-  def setParameters(projectile: String, inAtmosphere: Atmosphere, maximumEnergy: Double) {
-    projectileName = projectile
-    currentAtmosphere = inAtmosphere
-    maxEnergy = maximumEnergy 
   }
 
   // check to see if cross sections needed are in database

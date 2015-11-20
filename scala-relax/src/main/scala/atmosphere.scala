@@ -1,6 +1,7 @@
 package atmosphere
 
 import scala.collection.mutable._
+import scala.collection.immutable.ListMap
 import crossSections.CrossSections
 
 class Atmosphere extends Serializable {
@@ -13,13 +14,31 @@ class Atmosphere extends Serializable {
 
   // init the Atmosphere class
   def setParameters(particles: HashMap[String, Double],
-                    tmp: Double) = {
+                    temp: Double) = {
     val particleNames = particles.keysIterator
     while (particleNames.hasNext) {
       val nameNow: String = particleNames.next
       atmosphereParticles += (nameNow -> particles(nameNow))
     }
-    temperature = tmp
+    temperature = temp
+  }
+
+  def getParticleMass(particle: String): Double = {
+    val masses = ListMap("H"   -> 1.00782503207,
+                         "H2"  -> 2.0157,
+                         "N2"  -> 28.0134,
+                         "Ar"  -> 39.948,
+                         "He"  -> 4.00260325415,
+                         "O"   -> 15.99491461956,
+                         "CO2" -> 44.00964,
+                         "CO"  -> 28.0147)
+    masses(particle)
+  }
+
+  def getAnyReducedMass(proj: String, targ: String): Double = {
+    val pMass: Double = getParticleMass(proj)
+    val tMass: Double = getParticleMass(targ)
+    (pMass*tMass)/(pMass+tMass)
   }
 
   // get density of atmosphere at position (x, y, z) [m, m, m]

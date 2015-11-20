@@ -92,9 +92,13 @@ object mcRelax extends Serializable {
     // PRINT RESULTS TO SCREEN
     var collisionNumber: Int = gen1HotsTrans_rdd.map(x => x.numberOfCollisions).reduce(_+_)
     var clickNumber: Int = gen1HotsTrans_rdd.map(x => x.numberOfClicks).reduce(_+_)
-    println("collisionNumber -> " + collisionNumber.toString)
-    println("clickNumber     -> " + clickNumber.toString)
-    println("collision probability -> "+(collisionNumber.toDouble/clickNumber.toDouble).toString)
+    var averageScatteringAngle: Double = gen1HotsTrans_rdd.
+                                         map(x => x.totScattingAngle/x.numberOfCollisions.toDouble).
+                                         reduce(_+_)/NP.toDouble
+    println("collisionNumber            -> " + collisionNumber.toString)
+    println("clickNumber                -> " + clickNumber.toString)
+    println("ave scattering angle [deg] -> " + averageScatteringAngle.toString)
+    println("collision probability      -> " + (collisionNumber.toDouble/clickNumber.toDouble).toString)
 
     //////////////////////////////////////////////////////////////////////
     // generate statistical distributions from simulation results

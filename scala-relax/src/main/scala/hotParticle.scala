@@ -38,6 +38,7 @@ class HotParticle extends Serializable {
   var numberOfClicks: Int = 0
   var collisionProbability: Double = 0.0
   var generation: Int = 0
+  var totScattingAngle: Double = 0
   var randy: Random = new Random()
   var atmosphere: Atmosphere = new Atmosphere
   var crossSections: CrossSections = new CrossSections
@@ -266,6 +267,9 @@ class Transport extends Serializable {
 
       // convert scattering angle 
       val scatteringAngleLabFrame: Double = z.cmToLabAngle(scatteringAngle, targetMass)
+
+      // update total scattering angle counter
+      z.totScattingAngle += scatteringAngle
 
       // update energy, velocity, and position
       z.collisionUpdate(scatteringAngle, phiScatteringAngle, collisionLength)
