@@ -3,6 +3,7 @@ import parameters.Parameters
 import hotParticle._
 import atmosphere.Atmosphere
 import crossSections.CrossSections
+import tests.Tests
 
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkConf
@@ -20,15 +21,28 @@ object mcRelax extends Serializable {
   // main relaxation function
   //////////////////////////////////////////////////////////////////////
   def main(args: Array[String]) {
+    if (args contains "-t") {
+      println("\nRunning Tests\n")
+      val test = new Tests
+      test.assert_tests
+    } else {
+      println("\nRunning Monte Carlo Simulation")
+      print_stupid_graphic
+      mc(args)
+    }
+  }
 
-
+  //////////////////////////////////////////////////////////////////////
+  // main monte-carlo function
+  //////////////////////////////////////////////////////////////////////
+  def mc(args: Array[String]) {
     //////////////////////////////////////////////////////////////////////
     // read input file
     // Load our own config values from the default location, application.conf
     //////////////////////////////////////////////////////////////////////
     val conf = ConfigFactory.load()
     val N_Hots: Int = conf.getInt("relax.NumberParticles")
-   
+       
     //////////////////////////////////////////////////////////////////////
     // get Spark Context
     //////////////////////////////////////////////////////////////////////
@@ -93,8 +107,8 @@ object mcRelax extends Serializable {
     var collisionNumber: Int = gen1HotsTrans_rdd.map(x => x.numberOfCollisions).reduce(_+_)
     var clickNumber: Int = gen1HotsTrans_rdd.map(x => x.numberOfClicks).reduce(_+_)
     var averageScatteringAngle: Double = gen1HotsTrans_rdd.
-                                         map(x => x.totScattingAngle/x.numberOfCollisions.toDouble).
-                                         reduce(_+_)/NP.toDouble
+                                           map(x => x.totScattingAngle/x.numberOfCollisions.toDouble).
+                                           reduce(_+_)/NP.toDouble
     println("collisionNumber            -> " + collisionNumber.toString)
     println("clickNumber                -> " + clickNumber.toString)
     println("ave scattering angle [deg] -> " + averageScatteringAngle.toString)
@@ -105,21 +119,29 @@ object mcRelax extends Serializable {
     // print overall statistics to screen
     // persist all distributions to files
     //////////////////////////////////////////////////////////////////////
-
     //////////////////////////////////////////////////////////////////////
     // stop spark
     //////////////////////////////////////////////////////////////////////
     sc.stop()
-
-
   }
 
-def test_collisionCounts(hotTrans: RDD[HotParticle]) {
+  def test_collisionCounts(hotTrans: RDD[HotParticle]) {
     val allCollisionNumbers: Array[Int] = hotTrans.map(x => x.numberOfCollisions).collect()
     val collisionNumber: Int = hotTrans.map(x => x.numberOfCollisions).reduce(_+_)
     if (allCollisionNumbers.sum == collisionNumber) { 
         println("Collision number test PASSSED") 
     } else { println("Collision number test FAILED") }
-}
+  }
+
+  def print_stupid_graphic {
+    println("|    |    / |   /  ")
+    println("   .   |   .    .  ")
+    println("   /     .   |     ")
+    println("  /  .     /       ")
+    println(".                 .")
+    println("~-~-~-~-~-~-~-~-~-~")
+    println("~-~-~-~-~-~-~-~-~-~")
+    println("                   ")
+  }
 
 }
