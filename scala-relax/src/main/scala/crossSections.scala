@@ -34,9 +34,25 @@ class CrossSections extends Serializable {
     maxEnergy = maximumEnergy 
   }
 
+  def getAnyLambda(proj: String, targ: String): Double = {
+    val projMol = currentAtmosphere.isMolecule(proj)
+    val targMol = currentAtmosphere.isMolecule(targ)
+    if (projMol || targMol) {
+      1.4
+    } else {
+      1.0
+    } 
+  }
+
   // get lambda for atom-atom and atom-molecule
   def getLambda(target: String): Double = {
-    1.0
+    val projMol = currentAtmosphere.isMolecule(projectileName)
+    val targMol = currentAtmosphere.isMolecule(target)
+    if (projMol || targMol) {
+      1.4
+    } else {
+      1.0
+    }
   }
 
   def getReducedMass(target: String): Double = {

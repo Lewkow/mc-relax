@@ -20,7 +20,10 @@ class Tests extends Serializable {
 
   def test_reducedMass {
     def printRM(proj: String, targ: String) {
-      println("Reduced Mass: "+proj+" + "+targ+" -> "+atmosphere.getAnyReducedMass(proj,targ).toString)
+      println("Reduced Mass: "+proj+
+              " + "+targ+" -> "+
+              atmosphere.getAnyReducedMass(proj,targ).toString + 
+              " lambda: "+CS.getAnyLambda(proj,targ))
     }
     for (p <- targets) {
       for (t <- targets) {
