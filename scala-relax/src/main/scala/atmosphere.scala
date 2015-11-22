@@ -23,6 +23,18 @@ class Atmosphere extends Serializable {
     temperature = temp
   }
 
+  def isMolecule(particle: String): Boolean = {
+    val molicules = ListMap("H"   -> false,
+                            "H2"  -> true,
+                            "N2"  -> true,
+                            "Ar"  -> false,
+                            "He"  -> false,
+                            "O"   -> false,
+                            "CO2" -> true,
+                            "CO"  -> true)
+    molicules(particle)
+  }
+
   def getParticleMass(particle: String): Double = {
     val masses = ListMap("H"   -> 1.00782503207,
                          "H2"  -> 2.0157,
