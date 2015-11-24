@@ -7,7 +7,7 @@ import math._
 
 class CrossSections extends Serializable {
 
-  val use_Universal: Boolean = true
+  val use_Universal: Boolean = false
 
   // number of angles for numeric integrations
   val N_angles: Int = 10000
@@ -46,13 +46,13 @@ class CrossSections extends Serializable {
 
   // get lambda for atom-atom and atom-molecule
   def getLambda(target: String): Double = {
-    val projMol = currentAtmosphere.isMolecule(projectileName)
-    val targMol = currentAtmosphere.isMolecule(target)
-    if (projMol || targMol) {
-      1.4
-    } else {
-      1.0
-    }
+    getAnyLambda(projectileName, target)
+  }
+
+  def getAnyReducedMass(projectile: String, target: String): Double = {
+    val projMass: Double = currentAtmosphere.getParticleMass(projectile)
+    val targMass: Double = currentAtmosphere.getParticleMass(target)
+    (projMass * targMass) / (projMass + targMass)
   }
 
   def getReducedMass(target: String): Double = {
@@ -62,7 +62,13 @@ class CrossSections extends Serializable {
   }
 
   // universal amplitude
-  def universalAmplitude(energy: Double, angle: Double, target: String): Double = {
+  // Inputs:
+  //   energy CM [eV]
+  //   angle CM [deg]
+  //   target particle
+  // Outputs:
+  //   differntial cross section CM [a0^2]
+  def anyUniversalAmplitude(energy: Double, angle: Double, projectile: String, target: String): Double = {
     val tau0: Double = 50.12
     val c1: Double = -0.13
     val c2: Double = 1.0 
@@ -71,13 +77,13 @@ class CrossSections extends Serializable {
     val c5: Double = 2.04 
     val c6: Double = -0.03 
     val c7: Double = 32.3
-    val lam: Double = getLambda(target) 
-    val tau: Double = energy*angle/getReducedMass(target)
+    val lam: Double = getAnyLambda(projectile, target) 
+    val tau: Double = energy*angle/getAnyReducedMass(projectile, target)
     val x: Double = math.log(tau)
-    val c: Double = lam/(angle*math.sin(angle))
+    val c: Double = lam/(angle*math.sin(toRadians(angle)))
     var amp: Double = 0.0
     if (tau >= tau0) {
-      amp = c*math.exp( c1*x + c2*x + c3 )
+      amp = c*math.exp( c1*x*x + c2*x + c3 )
     }
     else {
       amp = c*c4*math.exp( c5 + c6*x ) + c7
@@ -85,12 +91,26 @@ class CrossSections extends Serializable {
     amp
   }
 
+  // universal amplitude
+  // Inputs:
+  //   energy CM [eV]
+  //   angle CM [deg]
+  //   target particle
+  // Outputs:
+  //   differntial cross section CM [a0^2]
+  def universalAmplitude(energy: Double, angle: Double, target: String): Double = {
+    anyUniversalAmplitude(energy, angle, projectileName, target)
+  }
+
   // universal scattering random angle
-  // Inputs: cm_energy [eV], target species
-  // Outputs: cm_scattering_angle [deg]
+  // Inputs: 
+  //   energy CM [eV]
+  //   target particle
+  // Outputs: 
+  //   scattering angle CM [deg]
   def universalScatteringAngle(energy: Double, target: String): Double = {
     val tcs: Double = universalTotalCrossSection(energy, target)
-    val da: Double = math.Pi*2.0/N_angles.toDouble  
+    val da: Double = math.Pi/N_angles.toDouble  
     var rho: Double = 0.0
     var r: Double = randy.nextDouble()
     var gotIt: Boolean = false
@@ -105,16 +125,22 @@ class CrossSections extends Serializable {
     scattering_theta
   }
 
-  def universalTotalCrossSection(energy: Double, target: String): Double = {
-    // differential angle [rad] 
-    val da: Double = math.Pi*2.0/N_angles.toDouble
+  def anyUniversalTotalCrossSection(energy: Double, projectile: String, target: String): Double = {
+    val theta_i: Double = 0.01
+    val theta_f: Double = 170.0
+    val da: Double = toRadians((theta_f-theta_i)/N_angles.toDouble)
     var tcs: Double = 0.0
     var i: Int = 1
-    for (i <- 1 until N_angles-1) {
-      val theta: Double = toDegrees(da*i)
-      tcs += da*2.0*math.Pi*math.sin(toRadians(theta))*universalAmplitude(energy, theta, target)
+    for (i <- 0 until N_angles) {
+      val theta: Double = toDegrees(da*i + theta_i)
+      val amp: Double = anyUniversalAmplitude(energy, theta, projectile, target)
+      tcs += da*2.0*math.Pi*math.sin(toRadians(theta))*amp
     }
     tcs
+  }
+
+  def universalTotalCrossSection(energy: Double, target: String): Double = {
+    anyUniversalTotalCrossSection(energy, projectileName, target)
   }
 
   // check to see if cross sections needed are in database
@@ -146,9 +172,9 @@ class CrossSections extends Serializable {
     }
   }
 
-  def toDegrees(rad: Double): Double = { rad*360.0d/(2.0d*math.Pi) }
+  def toDegrees(rad: Double): Double = { rad*180.0d/math.Pi }
 
-  def toRadians(deg: Double): Double = { deg*2.0d*math.Pi/360.0d }
+  def toRadians(deg: Double): Double = { deg*math.Pi/180.0d }
 
 }
 

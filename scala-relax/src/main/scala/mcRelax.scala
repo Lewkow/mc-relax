@@ -11,7 +11,7 @@ import org.apache.spark.rdd.RDD
 
 import scala.collection.mutable.HashMap
 
-import java.io.File
+import java.io._
 import com.typesafe.config.{ Config, ConfigFactory }
 import scala.io.Source
 
@@ -21,10 +21,15 @@ object mcRelax extends Serializable {
   // main relaxation function
   //////////////////////////////////////////////////////////////////////
   def main(args: Array[String]) {
-    if (args contains "-t") {
+    if (args contains "-test") {
       println("\nRunning Tests\n")
       val test = new Tests
-      test.assert_tests
+    } else if (args contains "-dcs") {
+      write_dcs(args)
+    } else if (args contains "-tcs") {
+      test_tcs(args)
+    } else if (args contains "-uni") {
+      write_uni(args)
     } else {
       println("\nRunning Monte Carlo Simulation")
       print_stupid_graphic
@@ -131,6 +136,50 @@ object mcRelax extends Serializable {
     if (allCollisionNumbers.sum == collisionNumber) { 
         println("Collision number test PASSSED") 
     } else { println("Collision number test FAILED") }
+  }
+
+  def test_tcs(args: Array[String]) {
+    val projectile: String = args(1)
+    val target: String = args(2)
+    val CS = new CrossSections
+    val energy = 10.0 to 1000.0 by 10.0
+    val file = new File("./data/universal_tcs_"+projectile+"-"+target+".txt")
+    val bw = new BufferedWriter(new FileWriter(file))
+    bw.write("energy,tcs\n")
+    for (en <- energy) {
+      val tcs = CS.anyUniversalTotalCrossSection(en, projectile, target)
+      bw.write(en+","+tcs+"\n")
+    }
+    bw.close()
+  }
+
+  def write_dcs(args: Array[String]) {
+    val CS = new CrossSections
+    val projectile: String = args(1)
+    val target: String = args(2)
+    val energy: Double = args(3).toDouble
+    val file = new File("./data/universal_dcs_"+projectile+"-"+target+".txt")
+    val bw = new BufferedWriter(new FileWriter(file))
+    bw.write("angle,dcs")
+    bw.close()
+  }
+
+  def write_uni(args: Array[String]) {
+    val CS = new CrossSections
+    val projectile: String = args(1)
+    val target: String = args(2)
+    val theta = 0.01 to 170.0 by 1.0
+    val energy = 100.0 to 10000.0 by 100.0
+    val file = new File("./data/universal_energy_angle_amp.txt")
+    val bw = new BufferedWriter(new FileWriter(file))
+    bw.write("energy,angle,dcs\n")
+    for (en <- energy) {
+      for (t <- theta) {
+        val amp = CS.anyUniversalAmplitude(en, t, projectile, target)
+        bw.write(en+","+t+","+amp+"\n")
+      }
+    }
+    bw.close()
   }
 
   def print_stupid_graphic {

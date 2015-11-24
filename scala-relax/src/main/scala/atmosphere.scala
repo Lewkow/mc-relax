@@ -14,13 +14,26 @@ class Atmosphere extends Serializable {
 
   // init the Atmosphere class
   def setParameters(particles: HashMap[String, Double],
-                    temp: Double) = {
+                    temp: Double) {
     val particleNames = particles.keysIterator
     while (particleNames.hasNext) {
       val nameNow: String = particleNames.next
       atmosphereParticles += (nameNow -> particles(nameNow))
     }
     temperature = temp
+  }
+
+  def setMarsParameters {
+    val particles: HashMap[String, Double] = HashMap("H" -> 1.0e12,
+                                                     "He" -> 1.0e11,
+                                                     "O" -> 1.0e13,
+                                                     "Ar" -> 1.0e11,
+                                                     "H2" -> 1.0e12,
+                                                     "N2" -> 1.0e13,
+                                                     "CO" -> 5.0e12,
+                                                     "CO2" -> 1.0e13)  
+    val temp: Double = 100.0
+    setParameters(particles,temp)
   }
 
   def isMolecule(particle: String): Boolean = {
