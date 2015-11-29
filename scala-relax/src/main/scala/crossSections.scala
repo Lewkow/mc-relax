@@ -102,6 +102,26 @@ class CrossSections extends Serializable {
     anyUniversalAmplitude(energy, angle, projectileName, target)
   }
 
+
+  def anyUniversalScatteringAngle(energy: Double, projectile: String, target: String): Double = {
+    val tcs: Double = anyUniversalTotalCrossSection(energy, projectile, target)
+    val theta_i: Double = 0.01
+    val theta_f: Double = 170.0
+    val da: Double = toRadians((theta_f-theta_i)/N_angles.toDouble)
+    var rho: Double = 0.0
+    var r: Double = randy.nextDouble()
+    var gotIt: Boolean = false
+    var i: Int = 0
+    var scattering_theta: Double = 0.0
+    while (rho < r) {
+      scattering_theta = toDegrees(da*i + theta_i)
+      i += 1
+      val amp = anyUniversalAmplitude(energy, scattering_theta, projectile, target)
+      rho += (da*2.0*math.Pi*math.sin(toRadians(scattering_theta))/tcs)*amp
+    }
+    scattering_theta
+  }
+
   // universal scattering random angle
   // Inputs: 
   //   energy CM [eV]
@@ -109,20 +129,7 @@ class CrossSections extends Serializable {
   // Outputs: 
   //   scattering angle CM [deg]
   def universalScatteringAngle(energy: Double, target: String): Double = {
-    val tcs: Double = universalTotalCrossSection(energy, target)
-    val da: Double = math.Pi/N_angles.toDouble  
-    var rho: Double = 0.0
-    var r: Double = randy.nextDouble()
-    var gotIt: Boolean = false
-    var i: Int = 1
-    var scattering_theta: Double = 0.0
-
-    while (rho < r) {
-      scattering_theta = toDegrees(da*i.toDouble)
-      i += 1
-      rho += (da*2.0*math.Pi*math.sin(toRadians(scattering_theta))/tcs)*universalAmplitude(energy, scattering_theta, target)
-    }
-    scattering_theta
+    anyUniversalScatteringAngle(energy, projectileName, target)
   }
 
   def anyUniversalTotalCrossSection(energy: Double, projectile: String, target: String): Double = {

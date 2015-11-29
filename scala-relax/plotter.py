@@ -4,14 +4,26 @@ import sys
 
 dcs3d = "energy,angle,dcs\n"
 en_tcs = "energy,tcs\n"
+ave_angle = "energy,angle\n"
+
+
+def plot_ave_angle(data):
+  x = []; y = [];
+  for d in data:
+    now = d.split(',')
+    x.append(now[0]); y.append(now[1]);
+  plt.plot(x, y, 'bo')
+  plt.xlabel("Energy [ev]")
+  plt.ylabel("Average CM Scattering Angle [deg]")
+  plt.savefig("./plots/ave_angle.png")
+
 
 def plot_tcs(data):
-  en = []; tcs = [];
+  x = []; y = [];
   for d in data:
-    dd = d.split(',')
-    en.append(float(dd[0]))
-    tcs.append(float(dd[1]))
-  plt.plot(en, tcs, 'ro')
+    now = d.split(',')
+    x.append(now[0]); y.append(now[1]);
+  plt.plot(x, y, 'ro')
   plt.xlabel("Energy [ev]")
   plt.ylabel("Total Cross Section [a0^2]")
   plt.savefig("./plots/tcs.png")
@@ -54,6 +66,8 @@ def file_type(data):
   if header == dcs3d:
     print("plotting dcs3d")
     plot_dcs3d(data[1:])
+  elif header == ave_angle:
+    plot_ave_angle(data[1:])
   elif header == en_tcs:
     plot_tcs(data[1:])
   else:

@@ -24,6 +24,8 @@ object mcRelax extends Serializable {
     if (args contains "-test") {
       println("\nRunning Tests\n")
       val test = new Tests
+    } else if (args contains "-ang") {
+      average_angle(args)
     } else if (args contains "-dcs") {
       write_dcs(args)
     } else if (args contains "-tcs") {
@@ -149,6 +151,27 @@ object mcRelax extends Serializable {
     for (en <- energy) {
       val tcs = CS.anyUniversalTotalCrossSection(en, projectile, target)
       bw.write(en+","+tcs+"\n")
+    }
+    bw.close()
+  }
+
+  def average_angle(args: Array[String]) {
+    val projectile: String = args(1)
+    val target: String = args(2)
+    val CS = new CrossSections
+    val energy = 10.0 to 1000.0 by 10.0
+    val trials = 100
+    val file = new File("./data/average_scattering_angle_"+projectile+"-"+target+".txt")
+    val bw = new BufferedWriter(new FileWriter(file))
+    bw.write("energy,angle\n")
+    for (en <- energy) {
+      var tot: Double = 0
+      for (i <- 1 to trials) {
+        tot += CS.anyUniversalScatteringAngle(en, projectile, target)
+      }
+      val ang = tot/trials.toDouble
+      bw.write(en+","+ang+"\n")
+      println(en+" eV done, ave: "+ang)
     }
     bw.close()
   }
