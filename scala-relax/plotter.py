@@ -4,7 +4,7 @@ import sys
 
 dcs3d = "energy,angle,dcs\n"
 en_tcs = "energy,tcs\n"
-ave_angle = "energy,angle\n"
+ave_angle = "energy,angle,dE\n"
 
 
 def plot_ave_angle(data):
@@ -12,17 +12,29 @@ def plot_ave_angle(data):
   for d in data:
     now = d.split(',')
     x.append(now[0]); y.append(now[1]);
+  plt.figure()
   plt.plot(x, y, 'bo')
   plt.xlabel("Energy [ev]")
   plt.ylabel("Average CM Scattering Angle [deg]")
   plt.savefig("./plots/ave_angle.png")
 
+def plot_ave_dE(data):
+  x = []; y = [];
+  for d in data:
+    now = d.split(',')
+    x.append(now[0]); y.append(now[2]);
+  plt.figure()
+  plt.plot(x, y, 'ro')
+  plt.xlabel("Energy [ev]")
+  plt.ylabel("Average Energy Loss per Collision [eV]")
+  plt.savefig("./plots/ave_dE.png")
 
 def plot_tcs(data):
   x = []; y = [];
   for d in data:
     now = d.split(',')
     x.append(now[0]); y.append(now[1]);
+  plt.figure()
   plt.plot(x, y, 'ro')
   plt.xlabel("Energy [ev]")
   plt.ylabel("Total Cross Section [a0^2]")
@@ -68,6 +80,7 @@ def file_type(data):
     plot_dcs3d(data[1:])
   elif header == ave_angle:
     plot_ave_angle(data[1:])
+    plot_ave_dE(data[1:])
   elif header == en_tcs:
     plot_tcs(data[1:])
   else:

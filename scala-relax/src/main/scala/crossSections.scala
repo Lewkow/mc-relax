@@ -12,6 +12,15 @@ class CrossSections extends Serializable {
   // number of angles for numeric integrations
   val N_angles: Int = 10000
 
+  // Inital angle for numeric integration [deg]
+  val theta_i: Double = 0.01
+
+  // Final angle for numeric integration [deg]
+  val theta_f: Double = 170.0
+
+  // Differential angle for integration [rad]
+  val da: Double = toRadians((theta_f-theta_i)/N_angles.toDouble)
+
   // random object generator
   var randy: Random = new Random()
 
@@ -33,6 +42,8 @@ class CrossSections extends Serializable {
     currentAtmosphere = inAtmosphere
     maxEnergy = maximumEnergy 
   }
+
+  def roundAt(p: Int)(n: Double): Double = { val s = math pow (10, p); (math round n * s) / s }
 
   def getAnyLambda(proj: String, targ: String): Double = {
     val projMol = currentAtmosphere.isMolecule(proj)
@@ -59,6 +70,15 @@ class CrossSections extends Serializable {
     val projMass: Double = currentAtmosphere.getParticleMass(projectileName)
     val targMass: Double = currentAtmosphere.getParticleMass(target)
     (projMass * targMass) / (projMass + targMass)
+  }
+
+
+  def getAverageEnergyLoss(energy: Double, projectile: String, target: String, angle: Double): Double = {
+    val projMass: Double = currentAtmosphere.getParticleMass(projectile)
+    val targMass: Double = currentAtmosphere.getParticleMass(target)
+    val c1: Double = 2.0*projMass*targMass
+    val c2: Double = math.pow((projMass+targMass),2.0)
+    energy*((2.0*projMass*targMass)/math.pow(projMass+targMass,2.0))*math.pow(toRadians(angle),2.0)
   }
 
   // universal amplitude
@@ -105,19 +125,17 @@ class CrossSections extends Serializable {
 
   def anyUniversalScatteringAngle(energy: Double, projectile: String, target: String): Double = {
     val tcs: Double = anyUniversalTotalCrossSection(energy, projectile, target)
-    val theta_i: Double = 0.01
-    val theta_f: Double = 170.0
-    val da: Double = toRadians((theta_f-theta_i)/N_angles.toDouble)
     var rho: Double = 0.0
     var r: Double = randy.nextDouble()
     var gotIt: Boolean = false
     var i: Int = 0
     var scattering_theta: Double = 0.0
     while (rho < r) {
-      scattering_theta = toDegrees(da*i + theta_i)
+      scattering_theta = toDegrees(da)*i + theta_i
       i += 1
       val amp = anyUniversalAmplitude(energy, scattering_theta, projectile, target)
       rho += (da*2.0*math.Pi*math.sin(toRadians(scattering_theta))/tcs)*amp
+      // println(roundAt(2)(scattering_theta), roundAt(2)(amp), roundAt(2)(rho), roundAt(2)(r))
     }
     scattering_theta
   }
@@ -133,13 +151,10 @@ class CrossSections extends Serializable {
   }
 
   def anyUniversalTotalCrossSection(energy: Double, projectile: String, target: String): Double = {
-    val theta_i: Double = 0.01
-    val theta_f: Double = 170.0
-    val da: Double = toRadians((theta_f-theta_i)/N_angles.toDouble)
     var tcs: Double = 0.0
-    var i: Int = 1
+    var i: Int = 0
     for (i <- 0 until N_angles) {
-      val theta: Double = toDegrees(da*i + theta_i)
+      val theta: Double = toDegrees(da)*i + theta_i
       val amp: Double = anyUniversalAmplitude(energy, theta, projectile, target)
       tcs += da*2.0*math.Pi*math.sin(toRadians(theta))*amp
     }

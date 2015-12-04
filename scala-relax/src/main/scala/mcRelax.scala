@@ -159,19 +159,20 @@ object mcRelax extends Serializable {
     val projectile: String = args(1)
     val target: String = args(2)
     val CS = new CrossSections
-    val energy = 10.0 to 1000.0 by 10.0
-    val trials = 100
+    val energy = 10.0 to 1000.0 by 50.0
+    val trials: Int = 1000
     val file = new File("./data/average_scattering_angle_"+projectile+"-"+target+".txt")
     val bw = new BufferedWriter(new FileWriter(file))
-    bw.write("energy,angle\n")
+    bw.write("energy,angle,dE\n")
     for (en <- energy) {
       var tot: Double = 0
       for (i <- 1 to trials) {
         tot += CS.anyUniversalScatteringAngle(en, projectile, target)
       }
-      val ang = tot/trials.toDouble
-      bw.write(en+","+ang+"\n")
-      println(en+" eV done, ave: "+ang)
+      val ang: Double = tot/trials.toDouble
+      val dE: Double = CS.getAverageEnergyLoss(en, projectile, target, ang)
+      bw.write(en+","+ang+","+dE+"\n")
+      println(en+" eV done, ave: "+ang+" dE: "+dE)
     }
     bw.close()
   }
