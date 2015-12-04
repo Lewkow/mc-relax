@@ -184,7 +184,8 @@ object mcRelax extends Serializable {
     val energy: Double = args(3).toDouble
     val file = new File("./data/universal_dcs_"+projectile+"-"+target+".txt")
     val bw = new BufferedWriter(new FileWriter(file))
-    bw.write("angle,dcs")
+    bw.write("angle,dcs\n")
+    val theta = 0.01 to 170.0 by 1.0
     bw.close()
   }
 
