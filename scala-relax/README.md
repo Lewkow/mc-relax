@@ -55,4 +55,75 @@ for a range of energies and angles given the input projectile and target particl
 ## Program Flow 
 ![Flow Diagram](./documentation/OverallFlow.png)
 
+## Basic Flow API
+_readInputFile_
 
+* number of MC particles to use in simulation
+
+* collision type (Quantum/Universal or Hard Sphere)
+
+* atmosphere density filename
+  * csv file with format | altitude (km), temperature (K), targ1Den (1/cm^3), targ2Den (1/cm^3), ... | 
+  * example:
+
+```
+alt, temp, H, He, C, CO, CO2
+100, 270, 1.0e15, 1.4e13, 3.2e11, 4.3e14, 3.1e11
+120, 272, 1.0e15, 1.2e13, 2.2e11, 3.9e14, 3.0e11
+```
+
+* ENA type
+  * needs to be a commonly used string, ("He", "H", "O", "H2O")
+
+* initial ENA position distribution
+  * csv file with format | altitude (km), probability (1/km) |
+  * sum(probability) * dz = 1
+  * example:
+
+```
+alt, prob
+100, 1.0e-2
+120, 1.3e-2
+```
+
+* initial ENA energy distribution
+  * csv file with format | energy (eV), probability (1/ev) |
+  * sum(probability) * dE = 1
+  * example:
+
+```
+engy, prob
+1000, 3.0e-2
+1010, 2.3e-2
+```
+
+* planet mass
+  * in units (kg)
+  * used for calculating escape velocity for planet
+
+* planet radius
+  * in units (km)
+  * used in simulation for spatial atmosphere density
+
+_checkCrossSections_
+
+* determine all scattering pairs
+* determine energy ranges needed for cross sections
+* query collision database for each collision species
+  * for spcies in collision_species
+    * if document does not exist
+      * call _calculateCrossSections_ for collision pair
+
+_calculateCrossSections_
+
+* determine what type of scattering to do for collision pair
+  * quantum partial wave: requires interaction potential(s)
+  * universal: works for any collision species with defined masses
+  * hard sphere: isotropic hard sphere scatttering
+
+
+_writeCrossSections_
+
+_runMCSimulation_
+
+_writeResults_
