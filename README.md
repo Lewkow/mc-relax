@@ -1,5 +1,5 @@
 # mc-relax
-Monte Carlo atomic and molecular particle simulator: Simulating the relaxation of particles, one collision at a time!
+Monte Carlo atomic and molecular particle simulator: Simulating the relaxation of particles in astrophysical environments, one collision at a time!
 http://arxiv.org/abs/1404.5986
 
 # version 1
@@ -43,11 +43,13 @@ For version 1 (v1) of mc-relax the following features need to be implemented:
       * (projectile_after: _particle_, target_after: _particle_) = collide
 
 
+
+## scala-relax
+Scala version of the Monte Carlo particle simulator.
+Uses Apache Spark for parallelization. 
+
+
 ## fortran-relax
 Fortran 90 version of the Monte Carlo particle simulator.
 Uses openMPI for parallelization.
 
-
-## scala-relax
-Scala version of the Monte Carlo particle simulator.
-Uses Apache Spark for parallelization
