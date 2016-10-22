@@ -77,4 +77,14 @@ You can also completely destroy your vagrant box state, removing any changes you
 Several data files are saved to mc-relax/fortran-relax/Data/ upon running the relaxation simulation.
 
 * ```Escape_Energy_Distribution.dat```
-  *
+  * [ escape energy (eV) ]
+  * The energy of every particle that escapes the atmosphere
+* ```Escape_NColl_Distribution.dat```
+  * [ number of collisions before escape ]
+  * The number of collisions before escape for every particle that escapes the atmosphere
+* ```Thermalization_Height_Distribution.dat```
+  * [ thermalization altitude (m) ]
+  * The altitude of thermalization for every particle that thermalizes in the atmosphere
+* ```Thermalization_Time_Distribution.dat```
+  * [ thermalization time (s) ]
+  * The amount of time, in the planet frame, that it takes to thermalize for every particle that thermalizes in the atmosphere
