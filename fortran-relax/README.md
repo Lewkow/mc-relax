@@ -76,5 +76,5 @@ You can also completely destroy your vagrant box state, removing any changes you
 ## Output data descriptions
 Several data files are saved to mc-relax/fortran-relax/Data/ upon running the relaxation simulation.
 
-* ```Escape_Energy_Distribution.dat'''
-  * 
+* ```Escape_Energy_Distribution.dat```
+  *
