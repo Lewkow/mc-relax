@@ -33,9 +33,9 @@ Once the tables tarball has been downloaded, it needs to be untared and the file
   $ tar -zxf scattering_dat.tar.gz
   $ mv ./scattering_dat/* ./
   ```
-  
+
 If you have MPI and gfortran working already on your system (_mpif90_ and _mpirun_ specifically) you can run the default input files with 2 processors as
-  ``` 
+  ```
   $ cd fortran-relax/Execute
   $ ./BUILD 2
   ```
@@ -72,3 +72,9 @@ You can also completely destroy your vagrant box state, removing any changes you
   $ cd mc-relax
   $ vagrant destroy
   ```
+
+## Output data descriptions
+Several data files are saved to mc-relax/fortran-relax/Data/ upon running the relaxation simulation.
+
+* ```Escape_Energy_Distribution.dat'''
+  * 
