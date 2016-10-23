@@ -30,8 +30,8 @@ object mcRelax extends Serializable {
       write_dcs(args)
     } else if (args contains "-tcs") {
       test_tcs(args)
-    } else if (args contains "-uni") {
-      write_uni(args)
+    } else if (args contains "-dcs3d") {
+      write_dcs3d(args)
     } else {
       println("\nRunning Monte Carlo Simulation")
       print_stupid_graphic
@@ -49,7 +49,7 @@ object mcRelax extends Serializable {
     //////////////////////////////////////////////////////////////////////
     val conf = ConfigFactory.load()
     val N_Hots: Int = conf.getInt("relax.NumberParticles")
-       
+
     //////////////////////////////////////////////////////////////////////
     // get Spark Context
     //////////////////////////////////////////////////////////////////////
@@ -93,7 +93,7 @@ object mcRelax extends Serializable {
     val crossSections = new CrossSections
     if (crossSections.haveCrossSections) {
         println("yay!! I have the cross sections I need!")
-    } 
+    }
     // if cross sections need to be calculated before mc simulation
     else {
         println("I need to do some computation")
@@ -104,7 +104,7 @@ object mcRelax extends Serializable {
     //////////////////////////////////////////////////////////////////////
     var gen1HotsTrans_rdd: RDD[HotParticle] = gen1Hots_rdd.map(x => x.trans.fullTransport(x))
     gen1HotsTrans_rdd.cache()
-    var NP = gen1HotsTrans_rdd.count() 
+    var NP = gen1HotsTrans_rdd.count()
     println("Finished transporting " + NP.toString + " particles")
 
     // TESTS
@@ -135,8 +135,8 @@ object mcRelax extends Serializable {
   def test_collisionCounts(hotTrans: RDD[HotParticle]) {
     val allCollisionNumbers: Array[Int] = hotTrans.map(x => x.numberOfCollisions).collect()
     val collisionNumber: Int = hotTrans.map(x => x.numberOfCollisions).reduce(_+_)
-    if (allCollisionNumbers.sum == collisionNumber) { 
-        println("Collision number test PASSSED") 
+    if (allCollisionNumbers.sum == collisionNumber) {
+        println("Collision number test PASSSED")
     } else { println("Collision number test FAILED") }
   }
 
@@ -189,13 +189,13 @@ object mcRelax extends Serializable {
     bw.close()
   }
 
-  def write_uni(args: Array[String]) {
+  def write_dcs3d(args: Array[String]) {
     val CS = new CrossSections
     val projectile: String = args(1)
     val target: String = args(2)
-    val theta = 0.01 to 170.0 by 1.0
+    val theta = 0.01 to 10.0 by 0.1
     val energy = 100.0 to 10000.0 by 100.0
-    val file = new File("./data/universal_energy_angle_amp.txt")
+    val file = new File("./data/dcs3d_"+projectile+"-"+target+".txt")
     val bw = new BufferedWriter(new FileWriter(file))
     bw.write("energy,angle,dcs\n")
     for (en <- energy) {
@@ -208,14 +208,14 @@ object mcRelax extends Serializable {
   }
 
   def print_stupid_graphic {
-    println("|    |    / |   /  ")
-    println("   .   |   .    .  ")
-    println("   /     .   |     ")
-    println("  /  .     /       ")
-    println(".                 .")
-    println("~-~-~-~-~-~-~-~-~-~")
-    println("~-~-~-~-~-~-~-~-~-~")
-    println("                   ")
+    println("|    |    / |   /   .    /    /   .  / ")
+    println("   . x   |   .    .  /   /      /      ")
+    println("   /     .   |            |         .  ")
+    println("  /  .     /        .  .    /      x   ")
+    println(".      x           . x   |     .       ")
+    println("~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~")
+    println("~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~")
+    println("                                       ")
   }
 
 }
