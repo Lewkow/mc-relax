@@ -5,7 +5,7 @@
   * What kind of simulations to do
     * Local Interstellar Medium (LISM) simulation
       * Homogeneous medium transport
-    * Plantary simulation
+    * Planetary simulation
       * Position dependent density medium (atmosphere) transport
   * What kind of secondary calculations to do (on(1) or off(0))
     * ENA Production
@@ -82,15 +82,19 @@ These distributions have a single value per particle that applies to the conditi
 * ```Escape_Energy_Distribution.dat```
   * [ escape energy (eV) ]
   * The energy of every particle that escapes the atmosphere
+	![alt text](https://github.com/Lewkow/mc-relax/blob/master/fortran-relax/LabBench/Plots/Escape_Energy_Distribution.png "Energy Distribution for Escaping Particles")
 * ```Escape_NColl_Distribution.dat```
   * [ number of collisions before escape ]
   * The number of collisions before escape for every particle that escapes the atmosphere
+	![alt text](https://github.com/Lewkow/mc-relax/blob/master/fortran-relax/LabBench/Plots/Escape_NColl_Distribution.png "Number of Collisions for Escaping Particles")
 * ```Thermalization_Height_Distribution.dat```
   * [ thermalization altitude (m) ]
   * The altitude of thermalization for every particle that thermalizes in the atmosphere
+	![alt text](https://github.com/Lewkow/mc-relax/blob/master/fortran-relax/LabBench/Plots/Thermalization_Height_Distribution.png "Thermalization Altitude")
 * ```Thermalization_Time_Distribution.dat```
   * [ thermalization time (s) ]
   * The amount of time, in the planet frame, that it takes to thermalize for every particle that thermalizes in the atmosphere
+	![alt text](https://github.com/Lewkow/mc-relax/blob/master/fortran-relax/LabBench/Plots/Thermalization_Time_Distribution.png "Thermalization Time")
 
 ### Bin Variable Index Files
 Indices are used for the value of the bin in 2-dimensional space.
