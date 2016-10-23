@@ -123,10 +123,12 @@ The values for the bin indices are found in the files ```planet_X_VARIABLE.dat``
 ### Click Dependent 2-Dimensional Distributions
 These distributions are 2-dimensional distributions based on the 2 variables assigned to the file (for example ```planet_Ncoll_vs_time.dat``` contains time dependent distributions for number of collisions vs lab frame time).
 
-* All of the time dependent distributions are labeled in files ```planet_VARIABLE1_vs_VARIABLE2.dat``` and have the following format:
+* All of the click dependent distributions are labeled in files ```planet_VARIABLE1_vs_VARIABLE2.dat``` and have the following format:
   * [ simulation click, VARIABLE1 index, VARIABLE2 index, bin value ]
-  * bin value is normalized such that if you sum over the entire 2-dimensional space the result is 1, assuming at least 1 particle is within the space.
-  * Particles are free to leave the 2-dimensional space and are then not counted in the data
+  * bin value is normalized such that 1 particle in a bin is equal to 1.0/(N_part)
+    * If all particles are in space for all clicks, sum will equal 1.0
+  * bin value is normalized such that if you sum over the entire 2-dimensional space the result is 1, assuming all particles in ensemble are within the space.
+  * Particles are free to leave the 2-dimensional space and are then not counted in the data. The sum of the 2-dimensional space is equal to the fraction of the distribution in the space.
 
 * All files available for click dependent 2-dimensional distributions
   * ```planet_Ncoll_vs_time.dat```
@@ -137,3 +139,22 @@ These distributions are 2-dimensional distributions based on the 2 variables ass
   * ```planet_height_vs_time.dat```
   * ```planet_height_vs_vert_vel.dat```
   * ```planet_vert_vel_vs_time.dat```
+
+### 2-Dimensional Distributions for all simulation time
+These distributions are the form as above but for all simulation clicks.
+
+* All of the distributions are labeled in files ```planet_all_VARIABLE1_vs_VARIABLE2.dat``` and have the following format:
+  * [ VARIABLE1 index, VARIABLE2 index, bin value ]
+  * bin value is normalized such that 1 particle in a bin is equal to 1.0/(N_part*max_clicks)
+    * If all particles are in space for all clicks, sum will equal 1.0
+  * Particles are free to leave the 2-dimensional space and are then not counted in the data. The sum of the 2-dimensional space is equal to the fraction of the distribution in the space.
+
+* All files available for click dependent 2-dimension distributions
+  * ```planet_all_Ncoll_vs_time.dat```
+  * ```planet_all_energy_vs_time.dat```
+  * ```planet_all_height_vs_Ncoll.dat```
+  * ```planet_all_height_vs_energy.dat```
+  * ```planet_all_height_vs_energy_loss.dat```
+  * ```planet_all_height_vs_time.dat```
+  * ```planet_all_height_vs_vert_vel.dat```
+  * ```planet_all_vert_vel_vs_time.dat```
