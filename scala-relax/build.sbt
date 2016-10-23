@@ -2,7 +2,7 @@
 
   version := "1.0"
 
-  scalaVersion := "2.11.7"
+  scalaVersion in ThisBuild := "2.11.7"
 
   val novusRepo = "Novus Release Repository" at "http://repo.novus.com/releases/"
   val novusSnapsRepo = "Novus Snapshots Repository" at "http://repo.novus.com/snapshots/"

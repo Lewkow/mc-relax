@@ -10,6 +10,18 @@ http://arxiv.org/abs/1404.5986
   * H, He, Ar, O, H2, N2, CO, CO2
   * Any of which can be used as either projectiles or targets
 
+**BUGS:**
+
+* run -uni CO CO2 writes a generic file instead of a custom named one with projectile and target names
+
+# to do
+* plotter.py
+  * add functionality to take multiple files and plot files together on a single plot
+  * make plots recognize projectile-target from filename, save figures with descriptive names 
+  * add plotter option flag to plot in either a0^2 or cm^2
+  
+* mc
+  * update main code to read cross sections from files, save data structure to memory 
 
 ## Usage
 ### Universal Cross Sections
