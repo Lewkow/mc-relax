@@ -3,7 +3,7 @@ SUBROUTINE test_pd
 	IMPLICIT NONE
 
 	REAL(KIND=8)	:: Mp, Mt, E
-	INTEGER				:: atom
+	INTEGER		:: atom
 
 	Mp = 4.0d0
 	Mt = 44.0d0
@@ -23,7 +23,7 @@ SUBROUTINE test_universal_tcs
 	IMPLICIT NONE
 
 	REAL(KIND=8)	:: TCS, E_in, E_fn, E, dE, U_TCS, U_DFCS, Q_TCS, Mp, Mt, U_EL
-	INTEGER				:: NE, i, atom
+	INTEGER		:: NE, i, atom
 
 	Mp   = 4.0D0
 	Mt   = 1.0D0
@@ -38,14 +38,7 @@ SUBROUTINE test_universal_tcs
 	DO i=1,NE
 		E = E_in + (i-1)*dE
 		CALL universal_tcs_int( E, Mp, Mt, atom, TCS )
-WRITE(22,*) E, TCS
-!		CALL universal_tcs( E, Mp, Mt, U_TCS )
-!		CALL TCS_HeH( E, Q_TCS )
-!		CALL TCS_HeHe( E, Q_TCS )
-!		CALL TCS_HeO( E, Q_TCS )
-!		WRITE(66,*) E, U_TCS, Q_TCS
-!		CALL universal_energy_loss(E, Mp, Mt, U_EL)
-!		WRITE(77,*) E, U_EL
+		WRITE(22,*) E, TCS
 	END DO
 
 END SUBROUTINE test_universal_tcs
@@ -65,16 +58,16 @@ SUBROUTINE universal_table_tcs( E, Targ, TCS )
 	IMPLICIT NONE
 
 	!! Inputs
-	REAL(KIND=8)			:: E		! Center of Mass frame collision energy [eV]
+	REAL(KIND=8)		:: E		! Center of Mass frame collision energy [eV]
 	CHARACTER(LEN=3)	:: Targ ! Target atom
 
 	!! Outputs
-	REAL(KIND=8)			:: TCS	! Total cross section [a0^2]
+	REAL(KIND=8)		:: TCS	! Total cross section [a0^2]
 
 	!! Internal
-	REAL(KIND=8)			:: TCS_A(NL_TCS)
-	REAL(KIND=8)			:: x1, x2, y1, y2, y0, m
-	INTEGER						:: i, z
+	REAL(KIND=8)		:: TCS_A(NL_TCS)
+	REAL(KIND=8)		:: x1, x2, y1, y2, y0, m
+	INTEGER			:: i, z
 
 	IF (PROJ .EQ. 'H ') THEN
 		IF (TRIM(Targ) .EQ. 'O')   TCS_A = TCS_X_O		
@@ -132,21 +125,21 @@ SUBROUTINE universal_tcs_int( E, Mp, Mt, atom, TCS )
 	REAL(KIND=8)		:: E			! CM Energy [eV]
 	REAL(KIND=8)		:: Mp			! Projectile mass [amu]
 	REAL(KIND=8)		:: Mt			! Target mass [amu]
-	INTEGER					:: atom		! 1 if atom-atom, 2 if atom-molecule
+	INTEGER			:: atom			! 1 if atom-atom, 2 if atom-molecule
 
 	!! Outputs
-	REAL(KIND=8)		:: TCS		! Total Cross Section [a0^2]
+	REAL(KIND=8)		:: TCS			! Total Cross Section [a0^2]
 
 	!! Internal
 	REAL(KIND=8)		:: CC, A, B, C, lam, Mu, T_min, T_max, dT, T, ret, DCS
-	INTEGER					:: N, i
+	INTEGER			:: N, i
 
 	CC = PI/180.0D0
 
 	!! calculate reduced mass
 	Mu = Mp*Mt/(Mp+Mt)
 
-	!! set minimum and maximum integration angles cm lab [deg]
+	!! set minimum and maximum integration angles cm [deg]
 	T_min = 0.01D0			
 	T_max = 170.0D0	
 
@@ -183,11 +176,11 @@ SUBROUTINE universal_pd( E, Mp, Mt, atom )
 	REAL(KIND=8)	:: E		! [eV]
 	REAL(KIND=8)	:: Mp		! [u]
 	REAL(KIND=8)	:: Mt		! [u]
-	INTEGER				:: atom	! 1 if atom-atom, 2 if atom-molecule
+	INTEGER		:: atom		! 1 if atom-atom, 2 if atom-molecule
 
 	!! Internal
 	REAL(KIND=8)	:: PD, C, T, dT, tot, tcs, dcs, Mu
-	INTEGER				:: i, N
+	INTEGER		:: i, N
 
 	C = 180.0D0/PI
 
@@ -208,7 +201,6 @@ SUBROUTINE universal_pd( E, Mp, Mt, atom )
 		CALL universal_dcs_core( E, Mu, t*C, atom, dcs )
 		PD  = 2.0D0*PI*SIN(T)*dcs*dT/tcs
 		tot = tot + PD
-!WRITE(99,*) t*C, PD, tot
 	END DO	
 
 END SUBROUTINE universal_pd
@@ -236,7 +228,7 @@ SUBROUTINE universal_tcs( E, Mp, Mt, TCS )
 	REAL(KIND=8)		:: Mt			! Target mass [amu]
 
 	!! Outputs
-	REAL(KIND=8)		:: TCS		! Total Cross Section [a0^2]
+	REAL(KIND=8)		:: TCS			! Total Cross Section [a0^2]
 
 	!! Internal
 	REAL(KIND=8)		:: Mu, Tau_Min, Tau_Max, Theta_min, Theta_max, Z_min, Z_max
@@ -297,14 +289,14 @@ SUBROUTINE universal_dfcs_int( E, Mp, Mt, atom, TCS )
 	REAL(KIND=8)		:: E			! Energy [eV]
 	REAL(KIND=8)		:: Mp			! Projectile mass [amu]
 	REAL(KIND=8)		:: Mt			! Target mass [amu]
-	INTEGER					:: atom		! 1 if atom-atom, 2 if atom-molecule
+	INTEGER			:: atom			! 1 if atom-atom, 2 if atom-molecule
 
 	!! Outputs
-	REAL(KIND=8)		:: TCS		! Total Cross Section [a0^2]
+	REAL(KIND=8)		:: TCS			! Total Cross Section [a0^2]
 
 	!! Internal
 	REAL(KIND=8)		:: CC, A, B, C, lam, Mu, T_min, T_max, dT, T, ret, DCS
-	INTEGER					:: N, i
+	INTEGER			:: N, i
 
 	CC = PI/180.0D0
 
